@@ -32,6 +32,8 @@ export default function LeadModal({ lead, onClose, onSave, onDelete, onAIScore }
     notes: lead.notes ?? "",
     status: lead.status ?? "Not contacted",
     is_priority: lead.is_priority ?? false,
+    next_action: lead.next_action ?? "",
+    next_action_date: lead.next_action_date ?? "",
   });
 
   const [contacts, setContacts] = useState<Contact[]>([{ name: "", role: "", phone: "", email: "", linkedin: "" }]);
@@ -178,6 +180,45 @@ export default function LeadModal({ lead, onClose, onSave, onDelete, onAIScore }
               value={form.notes ?? ""}
               onChange={e => setForm({ ...form, notes: e.target.value })}
             />
+          </div>
+
+          {/* Next action */}
+          <div className="rounded-xl p-4 space-y-3" style={{ background: "#f8f9ff", border: "1px solid #e0e4ff" }}>
+            <h3 className="text-xs font-semibold" style={{ color: "var(--navy)" }}>📋 Next action</h3>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="col-span-2">
+                <label style={labelCss} className={labelStyle}>What to do</label>
+                <input
+                  style={inputCss}
+                  className={inputStyle}
+                  value={form.next_action ?? ""}
+                  onChange={e => setForm({ ...form, next_action: e.target.value })}
+                  placeholder="e.g. Follow up call, Send email, Connect on LinkedIn"
+                />
+              </div>
+              <div>
+                <label style={labelCss} className={labelStyle}>Due date</label>
+                <input
+                  type="date"
+                  style={inputCss}
+                  className={inputStyle}
+                  value={form.next_action_date ?? ""}
+                  onChange={e => setForm({ ...form, next_action_date: e.target.value })}
+                />
+              </div>
+              {form.next_action_date && (
+                <div className="flex items-end pb-1">
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, next_action_date: "" })}
+                    className="text-xs"
+                    style={{ color: "var(--muted)" }}
+                  >
+                    Clear date
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="flex items-center gap-2">

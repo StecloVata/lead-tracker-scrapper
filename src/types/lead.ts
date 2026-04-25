@@ -43,6 +43,8 @@ export interface Lead {
   status: LeadStatus;
   is_priority: boolean;
   is_archived?: boolean;
+  next_action?: string;
+  next_action_date?: string;
   ai_score: number | null;
   ai_reasoning: string | null;
   created_at: string;

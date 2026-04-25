@@ -45,6 +45,10 @@ export default function LeadsClient() {
 
   useEffect(() => { fetchLeads(); }, []);
 
+  const today = new Date().toISOString().slice(0, 10);
+  const overdueLeads = leads.filter(l => l.next_action_date && l.next_action_date < today);
+  const dueTodayLeads = leads.filter(l => l.next_action_date === today);
+
   const filtered = useMemo(() => {
     const source = tab === "archived" ? archivedLeads : leads;
     let list = source.filter(l => {
@@ -52,7 +56,13 @@ export default function LeadsClient() {
       if (filters.country !== "All countries" && l.country !== filters.country) return false;
       if (filters.tier !== "All tiers" && `Tier ${l.tier}` !== filters.tier) return false;
       if (filters.status !== "All statuses" && l.status !== filters.status) return false;
-      if (filters.search) {
+      if (filters.search === "__overdue__") {
+        const t = new Date().toISOString().slice(0, 10);
+        if (!l.next_action_date || l.next_action_date >= t) return false;
+      } else if (filters.search === "__today__") {
+        const t = new Date().toISOString().slice(0, 10);
+        if (l.next_action_date !== t) return false;
+      } else if (filters.search) {
         const q = filters.search.toLowerCase();
         const hay = `${l.company} ${l.country} ${l.city} ${l.vertical} ${l.notes} ${l.persona}`.toLowerCase();
         if (!hay.includes(q)) return false;
@@ -162,6 +172,39 @@ export default function LeadsClient() {
   return (
     <div className="space-y-4">
       <StatsBar leads={leads} />
+
+      {/* Overdue / Due today chips */}
+      {(overdueLeads.length > 0 || dueTodayLeads.length > 0) && tab === "pipeline" && (
+        <div className="flex gap-2">
+          {overdueLeads.length > 0 && (
+            <button
+              onClick={() => { setTab("pipeline"); setFilters(f => ({ ...f, search: "__overdue__" })); }}
+              className="text-xs px-3 py-1.5 rounded-lg font-medium transition-colors"
+              style={{ background: "#fee2e2", color: "#991b1b" }}
+            >
+              🔴 {overdueLeads.length} overdue
+            </button>
+          )}
+          {dueTodayLeads.length > 0 && (
+            <button
+              onClick={() => { setTab("pipeline"); setFilters(f => ({ ...f, search: "__today__" })); }}
+              className="text-xs px-3 py-1.5 rounded-lg font-medium transition-colors"
+              style={{ background: "#fff7ed", color: "#9a3412" }}
+            >
+              🟠 {dueTodayLeads.length} due today
+            </button>
+          )}
+          {(filters.search === "__overdue__" || filters.search === "__today__") && (
+            <button
+              onClick={() => setFilters(f => ({ ...f, search: "" }))}
+              className="text-xs px-3 py-1.5 rounded-lg transition-colors"
+              style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
+            >
+              ✕ Clear filter
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Pipeline / Archived tabs */}
       <div className="flex items-center gap-1 p-1 rounded-xl w-fit" style={{ background: "var(--border)" }}>

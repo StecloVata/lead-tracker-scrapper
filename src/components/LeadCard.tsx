@@ -91,6 +91,7 @@ export default function LeadCard({ lead, compact, onOpen, onStatusChange, onPrio
           </div>
           <p className="text-xs mt-1 line-clamp-2" style={{ color: "var(--text-sub)" }}>{lead.notes}</p>
           {lead.persona && <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>Persona: {lead.persona}</p>}
+          {lead.next_action && <NextActionBadge action={lead.next_action} date={lead.next_action_date} />}
           {(lead.website || lead.linkedin) && (
             <div className="flex gap-2 mt-2" onClick={e => e.stopPropagation()}>
               {lead.website && (
@@ -170,4 +171,33 @@ function aiScoreColor(score: number) {
   if (score >= 80) return "#16a34a";
   if (score >= 60) return "#ca8a04";
   return "#dc2626";
+}
+
+function NextActionBadge({ action, date }: { action: string; date?: string }) {
+  const today = new Date().toISOString().slice(0, 10);
+  const isOverdue = date && date < today;
+  const isToday = date && date === today;
+
+  let bg = "#f3f4f6", color = "#6b7280", dot = "⬜";
+  if (isOverdue) { bg = "#fee2e2"; color = "#991b1b"; dot = "🔴"; }
+  else if (isToday) { bg = "#fff7ed"; color = "#9a3412"; dot = "🟠"; }
+  else if (date) { bg = "#eff6ff"; color = "#1d4ed8"; dot = "🔵"; }
+
+  const label = !date ? "" : isOverdue
+    ? `Overdue · ${fmt(date)}`
+    : isToday ? "Today"
+    : fmt(date);
+
+  return (
+    <div className="inline-flex items-center gap-1.5 mt-1.5 px-2 py-1 rounded-lg text-xs font-medium" style={{ background: bg, color }}>
+      <span style={{ fontSize: 9 }}>{dot}</span>
+      <span>{action}</span>
+      {label && <span className="opacity-75">· {label}</span>}
+    </div>
+  );
+}
+
+function fmt(dateStr: string) {
+  const d = new Date(dateStr + "T00:00:00");
+  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 }
