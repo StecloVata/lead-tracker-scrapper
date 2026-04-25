@@ -6,9 +6,20 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 
+// Converts a username to the synthetic email used in Supabase Auth.
+// Existing real-email users are unaffected — they pass their @ address directly.
+function usernameToEmail(username: string) {
+  return `${username.toLowerCase().trim()}@adversusleads.user`;
+}
+
+function isEmail(value: string) {
+  return value.includes("@");
+}
+
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState(""); // username OR email
+  const [username, setUsername] = useState("");      // sign-up only
   const [password, setPassword] = useState("");
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [error, setError] = useState("");
@@ -22,21 +33,54 @@ export default function LoginPage() {
     setLoading(true);
 
     if (mode === "login") {
+      // Auto-detect: if the user typed an @, treat as email; otherwise username
+      const email = isEmail(identifier) ? identifier.trim() : usernameToEmail(identifier);
       const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) { setError(error.message); setLoading(false); return; }
+      if (error) {
+        setError(
+          error.message === "Invalid login credentials"
+            ? "Incorrect username or password."
+            : error.message
+        );
+        setLoading(false);
+        return;
+      }
       router.push("/");
       router.refresh();
     } else {
-      const { data, error } = await supabase.auth.signUp({ email, password });
-      if (error) { setError(error.message); setLoading(false); return; }
-      // If email confirmation is disabled, session is created immediately
+      // Sign up — always username-based
+      const trimmed = username.trim();
+      if (!trimmed) { setError("Username is required."); setLoading(false); return; }
+      if (trimmed.includes("@")) { setError("Username cannot contain @."); setLoading(false); return; }
+      if (!/^[a-zA-Z0-9._-]+$/.test(trimmed)) {
+        setError("Username can only contain letters, numbers, dots, dashes, and underscores.");
+        setLoading(false);
+        return;
+      }
+
+      const email = usernameToEmail(trimmed);
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { username: trimmed } },
+      });
+
+      if (error) {
+        setError(
+          error.message.includes("already registered")
+            ? "That username is already taken."
+            : error.message
+        );
+        setLoading(false);
+        return;
+      }
+
       if (data.session) {
         router.push("/");
         router.refresh();
       } else {
-        // Email confirmation required
         setLoading(false);
-        setError("Check your email for a confirmation link, then sign in.");
+        setError("Something went wrong. Please try again.");
       }
     }
   }
@@ -44,7 +88,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--surface)" }}>
       <div className="w-full max-w-md">
-        {/* Logo / Header */}
+        {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "var(--navy)" }}>
@@ -66,20 +110,43 @@ export default function LoginPage() {
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1" style={{ color: "var(--text-sub)" }}>
-                Email address
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                required
-                className="w-full px-3 py-2.5 rounded-lg text-sm outline-none transition-all"
-                style={{ border: "1px solid var(--border)", background: "var(--surface)", color: "var(--text)" }}
-                placeholder="you@company.com"
-              />
-            </div>
+            {mode === "login" ? (
+              <div>
+                <label className="block text-sm font-medium mb-1" style={{ color: "var(--text-sub)" }}>
+                  Username <span style={{ color: "var(--muted)", fontWeight: 400 }}>or email</span>
+                </label>
+                <input
+                  type="text"
+                  value={identifier}
+                  onChange={e => setIdentifier(e.target.value)}
+                  required
+                  autoComplete="username"
+                  className="w-full px-3 py-2.5 rounded-lg text-sm outline-none transition-all"
+                  style={{ border: "1px solid var(--border)", background: "var(--surface)", color: "var(--text)" }}
+                  placeholder="your_username"
+                />
+              </div>
+            ) : (
+              <div>
+                <label className="block text-sm font-medium mb-1" style={{ color: "var(--text-sub)" }}>
+                  Username
+                </label>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={e => setUsername(e.target.value)}
+                  required
+                  autoComplete="username"
+                  className="w-full px-3 py-2.5 rounded-lg text-sm outline-none transition-all"
+                  style={{ border: "1px solid var(--border)", background: "var(--surface)", color: "var(--text)" }}
+                  placeholder="your_username"
+                />
+                <p className="text-xs mt-1" style={{ color: "var(--muted)" }}>
+                  Letters, numbers, dots, dashes and underscores only.
+                </p>
+              </div>
+            )}
+
             <div>
               <label className="block text-sm font-medium mb-1" style={{ color: "var(--text-sub)" }}>
                 Password
@@ -89,6 +156,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 required
+                autoComplete={mode === "login" ? "current-password" : "new-password"}
                 className="w-full px-3 py-2.5 rounded-lg text-sm outline-none transition-all"
                 style={{ border: "1px solid var(--border)", background: "var(--surface)", color: "var(--text)" }}
                 placeholder="••••••••"
@@ -114,11 +182,11 @@ export default function LoginPage() {
           <div className="mt-5 text-center text-sm" style={{ color: "var(--muted)" }}>
             {mode === "login" ? (
               <>Don&apos;t have an account?{" "}
-                <button onClick={() => setMode("signup")} className="font-medium underline" style={{ color: "var(--navy)" }}>Sign up</button>
+                <button onClick={() => { setMode("signup"); setError(""); }} className="font-medium underline" style={{ color: "var(--navy)" }}>Sign up</button>
               </>
             ) : (
               <>Already have an account?{" "}
-                <button onClick={() => setMode("login")} className="font-medium underline" style={{ color: "var(--navy)" }}>Sign in</button>
+                <button onClick={() => { setMode("login"); setError(""); }} className="font-medium underline" style={{ color: "var(--navy)" }}>Sign in</button>
               </>
             )}
           </div>
