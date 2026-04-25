@@ -33,9 +33,11 @@ interface Props {
   onStatusChange: (s: LeadStatus) => void;
   onPriorityToggle: () => void;
   onAIScore: () => void;
+  onArchive?: () => void;
+  onRestore?: () => void;
 }
 
-export default function LeadCard({ lead, compact, onOpen, onStatusChange, onPriorityToggle, onAIScore }: Props) {
+export default function LeadCard({ lead, compact, onOpen, onStatusChange, onPriorityToggle, onAIScore, onArchive, onRestore }: Props) {
   const tier = TIER_C[lead.tier as 1 | 2 | 3] ?? TIER_C[2];
   const status = STATUS_C[lead.status] ?? STATUS_C["Not contacted"];
 
@@ -125,16 +127,40 @@ export default function LeadCard({ lead, compact, onOpen, onStatusChange, onPrio
           </div>
         ) : null}
 
-        {/* Status dropdown */}
-        <select
-          value={lead.status}
-          onChange={e => { e.stopPropagation(); onStatusChange(e.target.value as LeadStatus); }}
-          onClick={e => e.stopPropagation()}
-          className={cn("text-xs px-2 py-1 rounded-lg font-medium flex-shrink-0 outline-none cursor-pointer border-0")}
-          style={{ background: status.bg, color: status.text }}
-        >
-          {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
-        </select>
+        {/* Status dropdown — hidden in archive view */}
+        {!lead.is_archived && (
+          <select
+            value={lead.status}
+            onChange={e => { e.stopPropagation(); onStatusChange(e.target.value as LeadStatus); }}
+            onClick={e => e.stopPropagation()}
+            className={cn("text-xs px-2 py-1 rounded-lg font-medium flex-shrink-0 outline-none cursor-pointer border-0")}
+            style={{ background: status.bg, color: status.text }}
+          >
+            {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
+        )}
+
+        {/* Archive / Restore */}
+        {onRestore && (
+          <button
+            onClick={e => { e.stopPropagation(); onRestore(); }}
+            className="text-xs px-2.5 py-1 rounded-lg font-medium flex-shrink-0 transition-colors"
+            style={{ background: "#dcfce7", color: "#166534", border: "1px solid #bbf7d0" }}
+            title="Restore lead"
+          >
+            ↩ Restore
+          </button>
+        )}
+        {onArchive && !lead.is_archived && (
+          <button
+            onClick={e => { e.stopPropagation(); onArchive(); }}
+            className="text-xs px-2 py-1 rounded-lg flex-shrink-0 transition-colors"
+            style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
+            title="Archive lead"
+          >
+            🗂
+          </button>
+        )}
       </div>
     </div>
   );

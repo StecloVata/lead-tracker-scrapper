@@ -2,12 +2,15 @@ import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { SEED_LEADS } from "@/lib/leads-seed";
 
-export async function GET() {
+export async function GET(request: Request) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  // Auto-seed for new users
+  const { searchParams } = new URL(request.url);
+  const archived = searchParams.get("archived") === "true";
+
+  // Auto-seed for new users (only count non-archived)
   const { count } = await supabase.from("leads").select("*", { count: "exact", head: true }).eq("user_id", user.id);
   if (count === 0) {
     const toInsert = SEED_LEADS.map(l => ({ ...l, user_id: user.id }));
@@ -18,6 +21,7 @@ export async function GET() {
     .from("leads")
     .select("*, contacts(*)")
     .eq("user_id", user.id)
+    .eq("is_archived", archived)
     .order("tier", { ascending: true })
     .order("company", { ascending: true });
 

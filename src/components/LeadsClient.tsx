@@ -12,10 +12,13 @@ const VERTICALS = ["All verticals", "BPO", "Insurance & Finance", "Debt Collecti
 const COUNTRIES = ["All countries", "Sweden", "Norway", "Denmark", "UK", "Netherlands", "Germany", "Belgium", "Switzerland", "Ireland", "Finland"];
 const TIERS = ["All tiers", "Tier 1", "Tier 2", "Tier 3"];
 const STATUSES_FILTER = ["All statuses", "Not contacted", "Researching", "Contacted", "Meeting booked", "Qualified", "Closed", "Not a fit"];
+const ARCHIVABLE_STATUSES = ["Not contacted", "Researching", "Contacted", "Meeting booked", "Qualified", "Closed", "Not a fit"];
 
 export default function LeadsClient() {
   const [leads, setLeads] = useState<Lead[]>([]);
+  const [archivedLeads, setArchivedLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState<"pipeline" | "archived">("pipeline");
   const [view, setView] = useState<"list" | "kanban">("list");
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [filters, setFilters] = useState<LeadFilters>({ vertical: "All verticals", country: "All countries", tier: "All tiers", search: "", status: "All statuses" });
@@ -25,19 +28,26 @@ export default function LeadsClient() {
   const [extractUrl, setExtractUrl] = useState("");
   const [extracting, setExtracting] = useState(false);
   const [extractError, setExtractError] = useState("");
+  const [showArchiveMenu, setShowArchiveMenu] = useState(false);
+  const [archiving, setArchiving] = useState(false);
+  const [archiveMsg, setArchiveMsg] = useState("");
 
   async function fetchLeads() {
     setLoading(true);
-    const res = await fetch("/api/leads");
-    const data = await res.json();
-    setLeads(Array.isArray(data) ? data : []);
+    const [active, archived] = await Promise.all([
+      fetch("/api/leads").then(r => r.json()),
+      fetch("/api/leads?archived=true").then(r => r.json()),
+    ]);
+    setLeads(Array.isArray(active) ? active : []);
+    setArchivedLeads(Array.isArray(archived) ? archived : []);
     setLoading(false);
   }
 
   useEffect(() => { fetchLeads(); }, []);
 
   const filtered = useMemo(() => {
-    let list = leads.filter(l => {
+    const source = tab === "archived" ? archivedLeads : leads;
+    let list = source.filter(l => {
       if (filters.vertical !== "All verticals" && l.vertical !== filters.vertical) return false;
       if (filters.country !== "All countries" && l.country !== filters.country) return false;
       if (filters.tier !== "All tiers" && `Tier ${l.tier}` !== filters.tier) return false;
@@ -56,15 +66,17 @@ export default function LeadsClient() {
     if (sortBy === "date_asc") list = [...list].sort((a, b) => new Date(a.created_at ?? 0).getTime() - new Date(b.created_at ?? 0).getTime());
     if (sortBy === "ai_score") list = [...list].sort((a, b) => (b.ai_score ?? 0) - (a.ai_score ?? 0));
     return list;
-  }, [leads, filters, sortBy]);
+  }, [leads, archivedLeads, tab, filters, sortBy]);
 
   const updateLead = useCallback(async (id: string, patch: Partial<Lead>) => {
     setLeads(prev => prev.map(l => l.id === id ? { ...l, ...patch } : l));
+    setArchivedLeads(prev => prev.map(l => l.id === id ? { ...l, ...patch } : l));
     await fetch(`/api/leads/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(patch) });
   }, []);
 
   const deleteLead = useCallback(async (id: string) => {
     setLeads(prev => prev.filter(l => l.id !== id));
+    setArchivedLeads(prev => prev.filter(l => l.id !== id));
     await fetch(`/api/leads/${id}`, { method: "DELETE" });
   }, []);
 
@@ -75,6 +87,41 @@ export default function LeadsClient() {
     return newLead;
   }, []);
 
+  const archiveLead = useCallback(async (id: string) => {
+    setLeads(prev => {
+      const lead = prev.find(l => l.id === id);
+      if (lead) setArchivedLeads(a => [{ ...lead, is_archived: true }, ...a]);
+      return prev.filter(l => l.id !== id);
+    });
+    await fetch(`/api/leads/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ is_archived: true }) });
+  }, []);
+
+  const restoreLead = useCallback(async (id: string) => {
+    setArchivedLeads(prev => {
+      const lead = prev.find(l => l.id === id);
+      if (lead) setLeads(a => [{ ...lead, is_archived: false }, ...a]);
+      return prev.filter(l => l.id !== id);
+    });
+    await fetch(`/api/leads/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ is_archived: false }) });
+  }, []);
+
+  async function archiveByStatus(status: string) {
+    setArchiving(true);
+    setShowArchiveMenu(false);
+    const res = await fetch("/api/leads/archive-bulk", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status, archived: true }),
+    });
+    const data = await res.json();
+    setArchiving(false);
+    if (!data.error) {
+      await fetchLeads();
+      const moved = leads.filter(l => l.status === status).length;
+      setArchiveMsg(`${moved} "${status}" leads archived.`);
+      setTimeout(() => setArchiveMsg(""), 4000);
+    }
+  }
 
   async function handleExtractLead() {
     if (!extractUrl.trim()) return;
@@ -116,6 +163,24 @@ export default function LeadsClient() {
     <div className="space-y-4">
       <StatsBar leads={leads} />
 
+      {/* Pipeline / Archived tabs */}
+      <div className="flex items-center gap-1 p-1 rounded-xl w-fit" style={{ background: "var(--border)" }}>
+        {(["pipeline", "archived"] as const).map(t => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            className="text-xs px-4 py-1.5 rounded-lg font-medium capitalize transition-all"
+            style={{
+              background: tab === t ? "#fff" : "transparent",
+              color: tab === t ? "var(--text)" : "var(--muted)",
+              boxShadow: tab === t ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
+            }}
+          >
+            {t === "pipeline" ? `Pipeline (${leads.length})` : `Archived (${archivedLeads.length})`}
+          </button>
+        ))}
+      </div>
+
       {/* Toolbar */}
       <div className="flex items-center gap-3 flex-wrap">
         <LeadFiltersBar
@@ -130,60 +195,99 @@ export default function LeadsClient() {
         />
         <div className="flex-1" />
 
-        {/* View toggle */}
-        <div className="flex rounded-lg overflow-hidden border" style={{ borderColor: "var(--border)" }}>
-          {(["list", "kanban"] as const).map(v => (
-            <button key={v} onClick={() => setView(v)}
-              className="px-3 py-1.5 text-xs font-medium capitalize transition-colors"
-              style={{ background: view === v ? "var(--navy)" : "#fff", color: view === v ? "#fff" : "var(--muted)" }}>
-              {v}
-            </button>
-          ))}
-        </div>
-
-        {/* Export / Import */}
-        <button onClick={handleExportCSV} className="text-xs px-3 py-1.5 rounded-lg border transition-colors" style={{ borderColor: "var(--border)", color: "var(--text-sub)", background: "#fff" }}>
-          Export CSV
-        </button>
-        <label className="text-xs px-3 py-1.5 rounded-lg border cursor-pointer transition-colors" style={{ borderColor: "var(--border)", color: "var(--text-sub)", background: "#fff" }}>
-          Import CSV
-          <input type="file" accept=".csv" className="hidden" onChange={handleImportCSV} />
-        </label>
-
-        {/* Add lead */}
-        <div className="relative">
-          <button
-            onClick={() => { setShowAddMenu(m => !m); setShowUrlInput(false); setExtractError(""); setExtractUrl(""); }}
-            className="text-xs px-3 py-1.5 rounded-lg font-semibold"
-            style={{ background: "var(--navy)", color: "#fff" }}
-          >
-            + Add lead ▾
-          </button>
-          {showAddMenu && (
-            <div
-              className="absolute right-0 top-full mt-1 rounded-xl shadow-lg z-50 overflow-hidden"
-              style={{ background: "#fff", border: "1px solid var(--border)", minWidth: "200px" }}
-            >
-              <button
-                className="w-full text-left px-4 py-3 text-xs hover:bg-gray-50 transition-colors"
-                style={{ color: "var(--text)" }}
-                onClick={() => { setShowAddMenu(false); setShowUrlInput(false); setSelectedLead({} as Lead); }}
-              >
-                <div className="font-semibold">✏️ Add manually</div>
-                <div className="mt-0.5" style={{ color: "var(--muted)" }}>Fill in all fields yourself</div>
-              </button>
-              <div style={{ borderTop: "1px solid var(--border)" }} />
-              <button
-                className="w-full text-left px-4 py-3 text-xs hover:bg-gray-50 transition-colors"
-                style={{ color: "var(--text)" }}
-                onClick={() => { setShowUrlInput(true); setShowAddMenu(false); }}
-              >
-                <div className="font-semibold">🔗 Add via link</div>
-                <div className="mt-0.5" style={{ color: "var(--muted)" }}>Auto-fill from website or LinkedIn</div>
-              </button>
+        {tab === "pipeline" && (
+          <>
+            {/* View toggle */}
+            <div className="flex rounded-lg overflow-hidden border" style={{ borderColor: "var(--border)" }}>
+              {(["list", "kanban"] as const).map(v => (
+                <button key={v} onClick={() => setView(v)}
+                  className="px-3 py-1.5 text-xs font-medium capitalize transition-colors"
+                  style={{ background: view === v ? "var(--navy)" : "#fff", color: view === v ? "#fff" : "var(--muted)" }}>
+                  {v}
+                </button>
+              ))}
             </div>
-          )}
-        </div>
+
+            {/* Export / Import */}
+            <button onClick={handleExportCSV} className="text-xs px-3 py-1.5 rounded-lg border transition-colors" style={{ borderColor: "var(--border)", color: "var(--text-sub)", background: "#fff" }}>
+              Export CSV
+            </button>
+            <label className="text-xs px-3 py-1.5 rounded-lg border cursor-pointer transition-colors" style={{ borderColor: "var(--border)", color: "var(--text-sub)", background: "#fff" }}>
+              Import CSV
+              <input type="file" accept=".csv" className="hidden" onChange={handleImportCSV} />
+            </label>
+
+            {/* Bulk archive by status */}
+            <div className="relative">
+              <button
+                onClick={() => setShowArchiveMenu(m => !m)}
+                disabled={archiving}
+                className="text-xs px-3 py-1.5 rounded-lg border transition-colors disabled:opacity-50"
+                style={{ borderColor: "var(--border)", color: "var(--text-sub)", background: "#fff" }}
+              >
+                {archiving ? "Archiving…" : "🗂 Archive by status ▾"}
+              </button>
+              {showArchiveMenu && (
+                <div
+                  className="absolute right-0 top-full mt-1 rounded-xl shadow-lg z-50 py-1"
+                  style={{ background: "#fff", border: "1px solid var(--border)", minWidth: "200px" }}
+                >
+                  <p className="text-xs px-4 py-2 font-semibold" style={{ color: "var(--muted)" }}>Archive all leads with status:</p>
+                  {ARCHIVABLE_STATUSES.map(s => {
+                    const n = leads.filter(l => l.status === s).length;
+                    return (
+                      <button
+                        key={s}
+                        onClick={() => archiveByStatus(s)}
+                        disabled={n === 0}
+                        className="w-full text-left px-4 py-2 text-xs hover:bg-gray-50 transition-colors flex items-center justify-between disabled:opacity-40"
+                        style={{ color: "var(--text)" }}
+                      >
+                        <span>{s}</span>
+                        <span className="font-semibold" style={{ color: "var(--muted)" }}>{n}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Add lead */}
+            <div className="relative">
+              <button
+                onClick={() => { setShowAddMenu(m => !m); setShowUrlInput(false); setExtractError(""); setExtractUrl(""); }}
+                className="text-xs px-3 py-1.5 rounded-lg font-semibold"
+                style={{ background: "var(--navy)", color: "#fff" }}
+              >
+                + Add lead ▾
+              </button>
+              {showAddMenu && (
+                <div
+                  className="absolute right-0 top-full mt-1 rounded-xl shadow-lg z-50 overflow-hidden"
+                  style={{ background: "#fff", border: "1px solid var(--border)", minWidth: "200px" }}
+                >
+                  <button
+                    className="w-full text-left px-4 py-3 text-xs hover:bg-gray-50 transition-colors"
+                    style={{ color: "var(--text)" }}
+                    onClick={() => { setShowAddMenu(false); setShowUrlInput(false); setSelectedLead({} as Lead); }}
+                  >
+                    <div className="font-semibold">✏️ Add manually</div>
+                    <div className="mt-0.5" style={{ color: "var(--muted)" }}>Fill in all fields yourself</div>
+                  </button>
+                  <div style={{ borderTop: "1px solid var(--border)" }} />
+                  <button
+                    className="w-full text-left px-4 py-3 text-xs hover:bg-gray-50 transition-colors"
+                    style={{ color: "var(--text)" }}
+                    onClick={() => { setShowUrlInput(true); setShowAddMenu(false); }}
+                  >
+                    <div className="font-semibold">🔗 Add via link</div>
+                    <div className="mt-0.5" style={{ color: "var(--muted)" }}>Auto-fill from website or LinkedIn</div>
+                  </button>
+                </div>
+              )}
+            </div>
+          </>
+        )}
       </div>
 
       {/* URL extraction panel */}
@@ -224,30 +328,48 @@ export default function LeadsClient() {
         </div>
       )}
 
+      {/* Archive confirmation message */}
+      {archiveMsg && (
+        <div className="p-3 rounded-xl text-xs font-medium" style={{ background: "#f3f4f6", color: "var(--text-sub)" }}>
+          🗂 {archiveMsg}
+        </div>
+      )}
+
       {/* Count */}
       <p className="text-xs" style={{ color: "var(--muted)" }}>
-        {filtered.length} of {leads.length} leads
+        {filtered.length} of {tab === "archived" ? archivedLeads.length : leads.length} leads
       </p>
 
       {/* List view */}
-      {view === "list" && (
+      {(tab === "archived" || view === "list") && (
         <div className="space-y-2">
           {loading ? (
             Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="h-20 rounded-xl animate-pulse" style={{ background: "var(--border)" }} />
             ))
           ) : filtered.length === 0 ? (
-            <div className="text-center py-16" style={{ color: "var(--muted)" }}>No leads match your filters</div>
+            <div className="text-center py-16" style={{ color: "var(--muted)" }}>
+              {tab === "archived" ? "No archived leads." : "No leads match your filters"}
+            </div>
           ) : (
             filtered.map(lead => (
-              <LeadCard key={lead.id} lead={lead} onOpen={() => setSelectedLead(lead)} onStatusChange={s => updateLead(lead.id, { status: s })} onPriorityToggle={() => updateLead(lead.id, { is_priority: !lead.is_priority })} onAIScore={() => {}} />
+              <LeadCard
+                key={lead.id}
+                lead={lead}
+                onOpen={() => setSelectedLead(lead)}
+                onStatusChange={s => updateLead(lead.id, { status: s })}
+                onPriorityToggle={() => updateLead(lead.id, { is_priority: !lead.is_priority })}
+                onAIScore={() => {}}
+                onArchive={tab === "pipeline" ? () => archiveLead(lead.id) : undefined}
+                onRestore={tab === "archived" ? () => restoreLead(lead.id) : undefined}
+              />
             ))
           )}
         </div>
       )}
 
-      {/* Kanban view */}
-      {view === "kanban" && (
+      {/* Kanban view — pipeline only */}
+      {tab === "pipeline" && view === "kanban" && (
         <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-thin">
           {KANBAN_COLS.map(col => {
             const colLeads = filtered.filter(l => l.status === col);
