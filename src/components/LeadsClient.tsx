@@ -293,14 +293,16 @@ export default function LeadsClient() {
             <button onClick={handleExportCSV} className="text-xs px-3 py-1.5 rounded-lg border transition-colors" style={{ borderColor: "var(--border)", color: "var(--text-sub)", background: "#fff" }}>
               Export CSV
             </button>
-            <label className="text-xs px-3 py-1.5 rounded-lg border cursor-pointer transition-colors" style={{ borderColor: "var(--border)", color: "var(--text-sub)", background: "#fff" }}>
-              Import CSV
-              <input type="file" accept=".csv,.txt" className="hidden" onChange={handleImportCSV} />
-            </label>
+            <div className="flex items-center gap-1">
+              <label className="text-xs px-3 py-1.5 rounded-lg border cursor-pointer transition-colors" style={{ borderColor: "var(--border)", color: "var(--text-sub)", background: "#fff" }}>
+                Import CSV
+                <input type="file" accept=".csv,.txt" className="hidden" onChange={handleImportCSV} />
+              </label>
+              <CSVInfoTooltip />
+            </div>
             <button onClick={downloadCSVTemplate} className="text-xs px-3 py-1.5 rounded-lg border transition-colors" style={{ borderColor: "var(--border)", color: "var(--text-sub)", background: "#fff" }} title="Download a blank CSV template with the correct column names">
               Template ↓
             </button>
-            <CSVInfoTooltip />
 
             {/* Bulk archive by status */}
             <div className="relative">
@@ -547,8 +549,8 @@ function CSVInfoTooltip() {
 
       {open && (
         <div
-          className="absolute right-0 top-full mt-2 rounded-2xl shadow-2xl z-50 overflow-hidden"
-          style={{ width: 520, background: "#fff", border: "1px solid var(--border)" }}
+          className="fixed rounded-2xl shadow-2xl z-50 overflow-hidden"
+          style={{ width: 520, background: "#fff", border: "1px solid var(--border)", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}
         >
           <div className="px-5 py-4 border-b" style={{ borderColor: "var(--border)", background: "#f8f9ff" }}>
             <p className="text-sm font-bold" style={{ color: "var(--navy)" }}>CSV Import Requirements</p>
