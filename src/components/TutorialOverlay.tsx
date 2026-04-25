@@ -78,10 +78,20 @@ export default function TutorialOverlay() {
   const current = STEPS[step];
   const PAD = 10;
 
-  const findElement = useCallback(() => {
+  const findElement = useCallback((scrollFirst = false) => {
     if (!current) return;
     const el = document.querySelector(current.selector);
-    if (el) {
+    if (!el) return;
+
+    if (scrollFirst) {
+      el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      // Re-measure after scroll animation finishes
+      setTimeout(() => {
+        const r = el.getBoundingClientRect();
+        setRect({ top: r.top, left: r.left, width: r.width, height: r.height });
+        setNavigating(false);
+      }, 400);
+    } else {
       const r = el.getBoundingClientRect();
       setRect({ top: r.top, left: r.left, width: r.width, height: r.height });
       setNavigating(false);
@@ -103,9 +113,9 @@ export default function TutorialOverlay() {
     setNavigating(false);
 
     if (current.openModal) {
-      // Open first lead's modal then wait for it to render
+      // Open first lead's modal, wait for render, then scroll into view + measure
       window.dispatchEvent(new CustomEvent("tutorial:open-first-lead"));
-      const t = setTimeout(findElement, 400);
+      const t = setTimeout(() => findElement(true), 400);
       return () => clearTimeout(t);
     }
 
@@ -118,11 +128,12 @@ export default function TutorialOverlay() {
   // Re-measure on scroll / resize
   useEffect(() => {
     if (!active) return;
-    window.addEventListener("resize", findElement);
-    window.addEventListener("scroll", findElement, true);
+    const remeasure = () => findElement();
+    window.addEventListener("resize", remeasure);
+    window.addEventListener("scroll", remeasure, true);
     return () => {
-      window.removeEventListener("resize", findElement);
-      window.removeEventListener("scroll", findElement, true);
+      window.removeEventListener("resize", remeasure);
+      window.removeEventListener("scroll", remeasure, true);
     };
   }, [active, findElement]);
 
