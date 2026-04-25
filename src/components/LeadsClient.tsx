@@ -20,6 +20,11 @@ export default function LeadsClient() {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [filters, setFilters] = useState<LeadFilters>({ vertical: "All verticals", country: "All countries", tier: "All tiers", search: "", status: "All statuses" });
   const [sortBy, setSortBy] = useState("tier");
+  const [showAddMenu, setShowAddMenu] = useState(false);
+  const [showUrlInput, setShowUrlInput] = useState(false);
+  const [extractUrl, setExtractUrl] = useState("");
+  const [extracting, setExtracting] = useState(false);
+  const [extractError, setExtractError] = useState("");
 
   async function fetchLeads() {
     setLoading(true);
@@ -70,6 +75,27 @@ export default function LeadsClient() {
     return newLead;
   }, []);
 
+
+  async function handleExtractLead() {
+    if (!extractUrl.trim()) return;
+    setExtracting(true);
+    setExtractError("");
+    const res = await fetch("/api/extract-lead", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url: extractUrl.trim() }),
+    });
+    const data = await res.json();
+    setExtracting(false);
+    if (data.error) {
+      setExtractError(data.error);
+    } else {
+      setShowUrlInput(false);
+      setExtractUrl("");
+      setExtractError("");
+      setSelectedLead({ ...data, status: "Not contacted", is_priority: false, tier: 2 } as Lead);
+    }
+  }
 
   function handleExportCSV() {
     downloadCSV(filtered, "adversus-leads.csv");
@@ -125,14 +151,78 @@ export default function LeadsClient() {
         </label>
 
         {/* Add lead */}
-        <button
-          onClick={() => setSelectedLead({} as Lead)}
-          className="text-xs px-3 py-1.5 rounded-lg font-semibold"
-          style={{ background: "var(--navy)", color: "#fff" }}
-        >
-          + Add lead
-        </button>
+        <div className="relative">
+          <button
+            onClick={() => { setShowAddMenu(m => !m); setShowUrlInput(false); setExtractError(""); setExtractUrl(""); }}
+            className="text-xs px-3 py-1.5 rounded-lg font-semibold"
+            style={{ background: "var(--navy)", color: "#fff" }}
+          >
+            + Add lead ▾
+          </button>
+          {showAddMenu && (
+            <div
+              className="absolute right-0 top-full mt-1 rounded-xl shadow-lg z-50 overflow-hidden"
+              style={{ background: "#fff", border: "1px solid var(--border)", minWidth: "200px" }}
+            >
+              <button
+                className="w-full text-left px-4 py-3 text-xs hover:bg-gray-50 transition-colors"
+                style={{ color: "var(--text)" }}
+                onClick={() => { setShowAddMenu(false); setShowUrlInput(false); setSelectedLead({} as Lead); }}
+              >
+                <div className="font-semibold">✏️ Add manually</div>
+                <div className="mt-0.5" style={{ color: "var(--muted)" }}>Fill in all fields yourself</div>
+              </button>
+              <div style={{ borderTop: "1px solid var(--border)" }} />
+              <button
+                className="w-full text-left px-4 py-3 text-xs hover:bg-gray-50 transition-colors"
+                style={{ color: "var(--text)" }}
+                onClick={() => { setShowUrlInput(true); setShowAddMenu(false); }}
+              >
+                <div className="font-semibold">🔗 Add via link</div>
+                <div className="mt-0.5" style={{ color: "var(--muted)" }}>Auto-fill from website or LinkedIn</div>
+              </button>
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* URL extraction panel */}
+      {showUrlInput && (
+        <div className="rounded-xl p-4 space-y-3" style={{ background: "#fff", border: "1px solid var(--border)" }}>
+          <p className="text-xs font-semibold" style={{ color: "var(--text)" }}>🔗 Add lead via link</p>
+          <p className="text-xs" style={{ color: "var(--muted)" }}>Paste a company website or LinkedIn company page URL — we'll extract the details automatically.</p>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={extractUrl}
+              onChange={e => setExtractUrl(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && handleExtractLead()}
+              placeholder="https://company.com or linkedin.com/company/..."
+              className="flex-1 text-xs px-3 py-2 rounded-lg outline-none"
+              style={{ border: "1px solid var(--border)", color: "var(--text)", background: "var(--surface)" }}
+              autoFocus
+            />
+            <button
+              onClick={handleExtractLead}
+              disabled={extracting || !extractUrl.trim()}
+              className="text-xs px-4 py-2 rounded-lg font-semibold disabled:opacity-50"
+              style={{ background: "var(--navy)", color: "#fff" }}
+            >
+              {extracting ? "Extracting…" : "Extract"}
+            </button>
+            <button
+              onClick={() => { setShowUrlInput(false); setExtractUrl(""); setExtractError(""); }}
+              className="text-xs px-3 py-2 rounded-lg"
+              style={{ border: "1px solid var(--border)", color: "var(--text-sub)" }}
+            >
+              Cancel
+            </button>
+          </div>
+          {extractError && (
+            <p className="text-xs px-3 py-2 rounded-lg" style={{ background: "#fee2e2", color: "#991b1b" }}>{extractError}</p>
+          )}
+        </div>
+      )}
 
       {/* Count */}
       <p className="text-xs" style={{ color: "var(--muted)" }}>
