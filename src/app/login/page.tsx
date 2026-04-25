@@ -24,13 +24,21 @@ export default function LoginPage() {
     if (mode === "login") {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) { setError(error.message); setLoading(false); return; }
+      router.push("/");
+      router.refresh();
     } else {
-      const { error } = await supabase.auth.signUp({ email, password });
+      const { data, error } = await supabase.auth.signUp({ email, password });
       if (error) { setError(error.message); setLoading(false); return; }
+      // If email confirmation is disabled, session is created immediately
+      if (data.session) {
+        router.push("/");
+        router.refresh();
+      } else {
+        // Email confirmation required
+        setLoading(false);
+        setError("Check your email for a confirmation link, then sign in.");
+      }
     }
-
-    router.push("/");
-    router.refresh();
   }
 
   return (
