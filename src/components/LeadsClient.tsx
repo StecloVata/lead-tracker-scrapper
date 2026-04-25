@@ -300,6 +300,7 @@ export default function LeadsClient() {
             <button onClick={downloadCSVTemplate} className="text-xs px-3 py-1.5 rounded-lg border transition-colors" style={{ borderColor: "var(--border)", color: "var(--text-sub)", background: "#fff" }} title="Download a blank CSV template with the correct column names">
               Template ↓
             </button>
+            <CSVInfoTooltip />
 
             {/* Bulk archive by status */}
             <div className="relative">
@@ -514,4 +515,84 @@ function StatusDot({ status }: { status: string }) {
     "Meeting booked": "#f97316", "Qualified": "#22c55e", "Closed": "#16a34a", "Not a fit": "#ef4444",
   };
   return <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: colors[status] ?? "#9ca3af" }} />;
+}
+
+function CSVInfoTooltip() {
+  const [open, setOpen] = useState(false);
+
+  const COLUMNS = [
+    { name: "company", req: true,  aliases: "Company Name, Organization, Name, Firm",       values: "Any text" },
+    { name: "country", req: false, aliases: "Nation",                                        values: "Any text — e.g. Sweden, Germany" },
+    { name: "city",    req: false, aliases: "Location, HQ, Town",                            values: "Any text" },
+    { name: "vertical",req: false, aliases: "Industry, Sector, Segment",                     values: "BPO · Insurance & Finance · Debt Collection · Telecoms & Utilities · Solar & Energy · Recruitment & Staffing · SaaS / Tech Sales" },
+    { name: "tier",    req: false, aliases: "Priority Tier, Priority",                       values: "1, 2 or 3  (default: 2)" },
+    { name: "size",    req: false, aliases: "Company Size, Employees, Headcount",             values: "Any text — e.g. 50–200" },
+    { name: "website", req: false, aliases: "URL, Domain, Web",                              values: "Domain without https — e.g. acmebpo.se" },
+    { name: "persona", req: false, aliases: "Contact, Decision Maker, Key Persona",          values: "Any text — e.g. Head of Operations" },
+    { name: "trigger", req: false, aliases: "Sales Trigger, Reason, Buying Trigger",         values: "Any text" },
+    { name: "notes",   req: false, aliases: "Description, Note, Comments, Details, Info",    values: "Any text" },
+    { name: "status",  req: false, aliases: "—",                                             values: "Not contacted · Researching · Contacted · Meeting booked · Qualified · Closed · Not a fit  (default: Not contacted)" },
+    { name: "linkedin",req: false, aliases: "LinkedIn URL",                                  values: "Full URL — e.g. linkedin.com/company/acme" },
+  ];
+
+  return (
+    <div className="relative" onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
+      <button
+        className="w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center border transition-colors"
+        style={{ borderColor: "var(--border)", color: "var(--text-sub)", background: "#fff" }}
+        aria-label="CSV import requirements"
+      >
+        i
+      </button>
+
+      {open && (
+        <div
+          className="absolute right-0 top-full mt-2 rounded-2xl shadow-2xl z-50 overflow-hidden"
+          style={{ width: 520, background: "#fff", border: "1px solid var(--border)" }}
+        >
+          <div className="px-5 py-4 border-b" style={{ borderColor: "var(--border)", background: "#f8f9ff" }}>
+            <p className="text-sm font-bold" style={{ color: "var(--navy)" }}>CSV Import Requirements</p>
+            <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
+              First row must be headers · UTF-8 encoding · Rows without a company name are skipped
+            </p>
+          </div>
+
+          <div className="overflow-y-auto" style={{ maxHeight: 380 }}>
+            <table className="w-full text-xs border-collapse">
+              <thead>
+                <tr style={{ background: "#f3f4f6" }}>
+                  <th className="text-left px-4 py-2 font-semibold" style={{ color: "var(--text-sub)" }}>Column</th>
+                  <th className="text-left px-4 py-2 font-semibold" style={{ color: "var(--text-sub)" }}>Also recognised as</th>
+                  <th className="text-left px-4 py-2 font-semibold" style={{ color: "var(--text-sub)" }}>Accepted values</th>
+                </tr>
+              </thead>
+              <tbody>
+                {COLUMNS.map((col, i) => (
+                  <tr key={col.name} style={{ background: i % 2 === 0 ? "#fff" : "#fafafa", borderTop: "1px solid var(--border)" }}>
+                    <td className="px-4 py-2 align-top font-mono" style={{ color: "var(--navy)", whiteSpace: "nowrap" }}>
+                      {col.name}
+                      {col.req && (
+                        <span className="ml-1.5 text-xs font-sans font-semibold px-1 py-0.5 rounded" style={{ background: "#fee2e2", color: "#991b1b" }}>required</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-2 align-top" style={{ color: "var(--text-sub)" }}>{col.aliases}</td>
+                    <td className="px-4 py-2 align-top" style={{ color: "var(--muted)" }}>{col.values}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Example row */}
+          <div className="px-5 py-4 border-t" style={{ borderColor: "var(--border)", background: "#f8f9ff" }}>
+            <p className="text-xs font-semibold mb-2" style={{ color: "var(--text-sub)" }}>Example</p>
+            <div className="rounded-lg overflow-x-auto p-3 text-xs font-mono leading-relaxed" style={{ background: "#1a2355", color: "#57dadd" }}>
+              <div style={{ color: "rgba(255,255,255,0.4)" }}>company,country,city,vertical,tier,size,website,notes,status</div>
+              <div>Acme BPO,Sweden,Stockholm,BPO,2,50–200,acmebpo.se,Strong outbound focus,Not contacted</div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
