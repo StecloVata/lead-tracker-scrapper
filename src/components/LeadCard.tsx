@@ -89,6 +89,32 @@ export default function LeadCard({ lead, compact, onOpen, onStatusChange, onPrio
           </div>
           <p className="text-xs mt-1 line-clamp-2" style={{ color: "var(--text-sub)" }}>{lead.notes}</p>
           {lead.persona && <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>Persona: {lead.persona}</p>}
+          {(lead.website || lead.linkedin) && (
+            <div className="flex gap-2 mt-2" onClick={e => e.stopPropagation()}>
+              {lead.website && (
+                <a
+                  href={lead.website.startsWith("http") ? lead.website : `https://${lead.website}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs px-2.5 py-1 rounded-lg font-medium transition-colors"
+                  style={{ background: "#f3f4f6", color: "var(--text-sub)", border: "1px solid var(--border)" }}
+                >
+                  🌐 Website
+                </a>
+              )}
+              {lead.linkedin && (
+                <a
+                  href={lead.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs px-2.5 py-1 rounded-lg font-medium transition-colors"
+                  style={{ background: "#e8f0fe", color: "#1d4ed8", border: "1px solid #bfdbfe" }}
+                >
+                  in LinkedIn
+                </a>
+              )}
+            </div>
+          )}
         </div>
 
         {/* AI score — shown only if already scored */}
