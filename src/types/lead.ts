@@ -36,6 +36,7 @@ export interface Lead {
   tier: 1 | 2 | 3;
   size: string;
   website: string;
+  linkedin?: string;
   persona: string;
   trigger: string;
   notes: string;
