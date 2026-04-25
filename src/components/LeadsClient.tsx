@@ -6,7 +6,7 @@ import LeadCard from "./LeadCard";
 import LeadFiltersBar from "./LeadFiltersBar";
 import LeadModal from "./LeadModal";
 import StatsBar from "./StatsBar";
-import { downloadCSV, parseCSV } from "@/lib/csv";
+import { downloadCSV, downloadCSVTemplate, parseCSV } from "@/lib/csv";
 
 const VERTICALS = ["All verticals", "BPO", "Insurance & Finance", "Debt Collection", "Telecoms & Utilities", "Solar & Energy", "Recruitment & Staffing", "SaaS / Tech Sales"];
 const COUNTRIES = ["All countries", "Sweden", "Norway", "Denmark", "UK", "Netherlands", "Germany", "Belgium", "Switzerland", "Ireland", "Finland"];
@@ -177,13 +177,31 @@ export default function LeadsClient() {
     downloadCSV(filtered, "adversus-leads.csv");
   }
 
+  const [importMsg, setImportMsg] = useState<{ type: "ok" | "warn" | "error"; text: string } | null>(null);
+
   async function handleImportCSV(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     const text = await file.text();
-    const rows = parseCSV(text);
-    for (const row of rows) await addLead(row);
+    const { leads, skipped, unknownHeaders } = parseCSV(text);
     e.target.value = "";
+
+    if (leads.length === 0) {
+      const hint = unknownHeaders.length
+        ? `No leads found. Unrecognised columns: ${unknownHeaders.slice(0, 4).join(", ")}. Make sure your CSV has a "company" column.`
+        : 'No leads found. Make sure your CSV has a "company" column and at least one data row.';
+      setImportMsg({ type: "error", text: hint });
+      setTimeout(() => setImportMsg(null), 8000);
+      return;
+    }
+
+    for (const row of leads) await addLead(row);
+
+    const parts = [`✓ ${leads.length} lead${leads.length !== 1 ? "s" : ""} imported`];
+    if (skipped > 0) parts.push(`${skipped} row${skipped !== 1 ? "s" : ""} skipped (no company name)`);
+    if (unknownHeaders.length) parts.push(`unknown columns ignored: ${unknownHeaders.slice(0, 3).join(", ")}`);
+    setImportMsg({ type: skipped > 0 || unknownHeaders.length > 0 ? "warn" : "ok", text: parts.join(" · ") });
+    setTimeout(() => setImportMsg(null), 6000);
   }
 
   const KANBAN_COLS = ["Not contacted", "Researching", "Contacted", "Meeting booked", "Qualified", "Closed", "Not a fit"] as const;
@@ -277,8 +295,11 @@ export default function LeadsClient() {
             </button>
             <label className="text-xs px-3 py-1.5 rounded-lg border cursor-pointer transition-colors" style={{ borderColor: "var(--border)", color: "var(--text-sub)", background: "#fff" }}>
               Import CSV
-              <input type="file" accept=".csv" className="hidden" onChange={handleImportCSV} />
+              <input type="file" accept=".csv,.txt" className="hidden" onChange={handleImportCSV} />
             </label>
+            <button onClick={downloadCSVTemplate} className="text-xs px-3 py-1.5 rounded-lg border transition-colors" style={{ borderColor: "var(--border)", color: "var(--text-sub)", background: "#fff" }} title="Download a blank CSV template with the correct column names">
+              Template ↓
+            </button>
 
             {/* Bulk archive by status */}
             <div className="relative">
@@ -388,6 +409,16 @@ export default function LeadsClient() {
           {extractError && (
             <p className="text-xs px-3 py-2 rounded-lg" style={{ background: "#fee2e2", color: "#991b1b" }}>{extractError}</p>
           )}
+        </div>
+      )}
+
+      {/* Import feedback */}
+      {importMsg && (
+        <div className="p-3 rounded-xl text-xs font-medium" style={{
+          background: importMsg.type === "error" ? "#fee2e2" : importMsg.type === "warn" ? "#fff7ed" : "#dcfce7",
+          color: importMsg.type === "error" ? "#991b1b" : importMsg.type === "warn" ? "#9a3412" : "#166534",
+        }}>
+          {importMsg.text}
         </div>
       )}
 
