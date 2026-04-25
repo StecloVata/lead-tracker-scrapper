@@ -39,6 +39,16 @@ create table if not exists public.contacts (
 alter table public.leads enable row level security;
 alter table public.contacts enable row level security;
 
+-- Drop existing policies if they exist
+drop policy if exists "Users can view own leads" on public.leads;
+drop policy if exists "Users can insert own leads" on public.leads;
+drop policy if exists "Users can update own leads" on public.leads;
+drop policy if exists "Users can delete own leads" on public.leads;
+drop policy if exists "Users can view own contacts" on public.contacts;
+drop policy if exists "Users can insert own contacts" on public.contacts;
+drop policy if exists "Users can update own contacts" on public.contacts;
+drop policy if exists "Users can delete own contacts" on public.contacts;
+
 -- Leads policies
 create policy "Users can view own leads"
   on public.leads for select
@@ -90,6 +100,7 @@ begin
 end;
 $$ language plpgsql;
 
+drop trigger if exists on_leads_updated on public.leads;
 create trigger on_leads_updated
   before update on public.leads
   for each row execute procedure public.handle_updated_at();
