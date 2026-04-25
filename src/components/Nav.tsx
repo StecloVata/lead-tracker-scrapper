@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { useTutorial } from "@/contexts/TutorialContext";
 import type { User } from "@supabase/supabase-js";
 
 const LINKS = [
@@ -27,6 +28,10 @@ export default function Nav({ user }: { user: User }) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
+  const tutorial = useTutorial();
+
+  const username = user.user_metadata?.username as string | undefined;
+  const displayName = username ?? user.email ?? "";
 
   async function signOut() {
     await supabase.auth.signOut();
@@ -50,10 +55,12 @@ export default function Nav({ user }: { user: User }) {
         {/* Nav links */}
         {LINKS.map(link => {
           const active = pathname === link.href;
+          const tutorialAttr = link.href === "/scraper" ? "nav-scraper" : link.href === "/analytics" ? "nav-analytics" : undefined;
           return (
             <Link
               key={link.href}
               href={link.href}
+              data-tutorial={tutorialAttr}
               className="flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg transition-all"
               style={{
                 color: active ? "var(--navy-dark)" : "rgba(255,255,255,0.75)",
@@ -72,7 +79,15 @@ export default function Nav({ user }: { user: User }) {
 
         {/* User */}
         <div className="flex items-center gap-3">
-          <span className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>{user.email}</span>
+          <button
+            onClick={tutorial.start}
+            className="text-xs px-3 py-1.5 rounded-lg transition-all"
+            style={{ background: "rgba(87,218,221,0.15)", color: "var(--teal)" }}
+            title="Restart the tour"
+          >
+            🗺️ Tour
+          </button>
+          <span className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>{displayName}</span>
           <button
             onClick={signOut}
             className="text-xs px-3 py-1.5 rounded-lg transition-all"

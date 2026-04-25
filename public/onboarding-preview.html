@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Onboarding Preview</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Simulated app background */
+    .app-bg {
+      position: fixed; inset: 0;
+      background: #f0f2f5;
+      filter: blur(2px);
+      z-index: 0;
+    }
+
+    /* Overlay */
+    .overlay {
+      position: fixed; inset: 0;
+      background: rgba(15, 20, 50, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      padding: 24px;
+    }
+
+    .modal {
+      background: #fff;
+      border-radius: 20px;
+      padding: 36px;
+      width: 100%;
+      max-width: 540px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.18);
+    }
+
+    .modal-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .logo {
+      width: 44px; height: 44px;
+      background: #1a2355;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+    }
+
+    .modal-header h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 6px;
+    }
+
+    .modal-header p {
+      font-size: 13px;
+      color: #9ca3af;
+      line-height: 1.5;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .option {
+      border: 2px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 18px 20px;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      text-align: left;
+      background: #fff;
+      width: 100%;
+    }
+
+    .option:hover {
+      border-color: #1a2355;
+      background: #f8f9ff;
+    }
+
+    .option.selected {
+      border-color: #1a2355;
+      background: #f0f2ff;
+      box-shadow: 0 0 0 3px rgba(26,35,85,0.1);
+    }
+
+    .option-icon {
+      font-size: 26px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .option-text h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1a1a2e;
+      margin-bottom: 4px;
+    }
+
+    .option-text p {
+      font-size: 12px;
+      color: #6b7280;
+      line-height: 1.5;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #e0fdf4;
+      color: #065f46;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 20px;
+      margin-top: 6px;
+    }
+
+    .badge-gray {
+      background: #f3f4f6;
+      color: #4b5563;
+    }
+
+    .btn-continue {
+      width: 100%;
+      padding: 13px;
+      background: #1a2355;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .btn-continue:hover { opacity: 0.9; }
+
+    .note {
+      text-align: center;
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-bg"></div>
+
+  <div class="overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="logo">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#57dadd" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.63A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92v2z"/>
+          </svg>
+        </div>
+        <h2>Welcome to Adversus Leads</h2>
+        <p>How would you like to get started?</p>
+      </div>
+
+      <div class="options">
+        <button class="option selected" onclick="select(this)">
+          <div class="option-icon">📋</div>
+          <div class="option-text">
+            <h3>Load sample leads</h3>
+            <p>Start with 89 pre-researched companies — BPOs, telecoms, debt collectors, and more across the Nordics, DACH, and Benelux. Ready to work from day one.</p>
+            <span class="badge">89 leads · 7 verticals · 10 countries</span>
+          </div>
+        </button>
+
+        <button class="option" onclick="select(this)">
+          <div class="option-icon">✨</div>
+          <div class="option-text">
+            <h3>Start from scratch</h3>
+            <p>Empty pipeline. Add your own leads manually, import a CSV, or use the Lead Generator to find companies that match your ICP.</p>
+            <span class="badge badge-gray">Clean slate</span>
+          </div>
+        </button>
+      </div>
+
+      <button class="btn-continue">Continue →</button>
+      <p class="note">You can always import or delete leads later.</p>
+    </div>
+  </div>
+
+  <script>
+    function select(el) {
+      document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+      el.classList.add('selected');
+    }
+  </script>
+</body>
+</html>

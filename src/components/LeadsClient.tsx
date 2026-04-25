@@ -174,6 +174,7 @@ export default function LeadsClient() {
       <StatsBar leads={leads} />
 
       {/* Overdue / Due today chips */}
+      <div data-tutorial="next-action-area" />
       {(overdueLeads.length > 0 || dueTodayLeads.length > 0) && tab === "pipeline" && (
         <div className="flex gap-2">
           {overdueLeads.length > 0 && (
@@ -207,7 +208,7 @@ export default function LeadsClient() {
       )}
 
       {/* Pipeline / Archived tabs */}
-      <div className="flex items-center gap-1 p-1 rounded-xl w-fit" style={{ background: "var(--border)" }}>
+      <div data-tutorial="pipeline-tabs" className="flex items-center gap-1 p-1 rounded-xl w-fit" style={{ background: "var(--border)" }}>
         {(["pipeline", "archived"] as const).map(t => (
           <button
             key={t}
@@ -296,7 +297,7 @@ export default function LeadsClient() {
             </div>
 
             {/* Add lead */}
-            <div className="relative">
+            <div className="relative" data-tutorial="add-lead-btn">
               <button
                 onClick={() => { setShowAddMenu(m => !m); setShowUrlInput(false); setExtractError(""); setExtractUrl(""); }}
                 className="text-xs px-3 py-1.5 rounded-lg font-semibold"
@@ -395,17 +396,18 @@ export default function LeadsClient() {
               {tab === "archived" ? "No archived leads." : "No leads match your filters"}
             </div>
           ) : (
-            filtered.map(lead => (
-              <LeadCard
-                key={lead.id}
-                lead={lead}
-                onOpen={() => setSelectedLead(lead)}
-                onStatusChange={s => updateLead(lead.id, { status: s })}
-                onPriorityToggle={() => updateLead(lead.id, { is_priority: !lead.is_priority })}
-                onAIScore={() => {}}
-                onArchive={tab === "pipeline" ? () => archiveLead(lead.id) : undefined}
-                onRestore={tab === "archived" ? () => restoreLead(lead.id) : undefined}
-              />
+            filtered.map((lead, idx) => (
+              <div key={lead.id} data-tutorial={idx === 0 ? "first-lead-card" : undefined}>
+                <LeadCard
+                  lead={lead}
+                  onOpen={() => setSelectedLead(lead)}
+                  onStatusChange={s => updateLead(lead.id, { status: s })}
+                  onPriorityToggle={() => updateLead(lead.id, { is_priority: !lead.is_priority })}
+                  onAIScore={() => {}}
+                  onArchive={tab === "pipeline" ? () => archiveLead(lead.id) : undefined}
+                  onRestore={tab === "archived" ? () => restoreLead(lead.id) : undefined}
+                />
+              </div>
             ))
           )}
         </div>
