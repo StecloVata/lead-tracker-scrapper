@@ -1,24 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
-// Dynamic import to avoid bundle issues on Vercel
-async function getBrowser() {
-  if (process.env.VERCEL) {
-    const chromium = await import("@sparticuz/chromium-min");
-    const puppeteer = await import("puppeteer-core");
-    return puppeteer.default.launch({
-      args: chromium.default.args,
-      defaultViewport: { width: 1280, height: 800 },
-      executablePath: await chromium.default.executablePath(
-        "https://github.com/Sparticuz/chromium/releases/download/v131.0.1/chromium-v131.0.1-pack.tar"
-      ),
-      headless: true,
-    });
-  } else {
-    const puppeteer = await import("puppeteer");
-    return puppeteer.default.launch({ headless: true });
-  }
-}
+export const maxDuration = 30;
 
 export async function POST(request: Request) {
   const supabase = await createClient();
@@ -28,40 +11,77 @@ export async function POST(request: Request) {
   const { query, vertical, country } = await request.json();
   if (!query) return NextResponse.json({ error: "Query is required" }, { status: 400 });
 
-  const searchQuery = `${query} ${vertical || ""} ${country || ""} outbound call center dialer site:linkedin.com OR site:crunchbase.com OR inurl:about`.trim();
+  const searchQuery = [query, vertical, country, "outbound call center dialer"]
+    .filter(Boolean)
+    .join(" ");
 
-  let browser;
   try {
-    browser = await getBrowser();
-    const page = await browser.newPage();
-    await page.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36");
+    // DuckDuckGo HTML endpoint — no JS rendering needed, works on Vercel
+    const res = await fetch(
+      `https://html.duckduckgo.com/html/?q=${encodeURIComponent(searchQuery)}`,
+      {
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+          "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+          "Accept-Language": "en-US,en;q=0.5",
+        },
+      }
+    );
 
-    await page.goto(`https://www.google.com/search?q=${encodeURIComponent(searchQuery)}&num=10`, {
-      waitUntil: "domcontentloaded",
-      timeout: 15000,
-    });
-
-    const results = await page.evaluate(() => {
-      const items: { title: string; url: string; snippet: string }[] = [];
-      document.querySelectorAll(".g").forEach(el => {
-        const titleEl = el.querySelector("h3");
-        const linkEl = el.querySelector("a");
-        const snippetEl = el.querySelector(".VwiC3b, .s3v9rd, .st");
-        if (titleEl && linkEl) {
-          items.push({
-            title: titleEl.textContent || "",
-            url: (linkEl as HTMLAnchorElement).href || "",
-            snippet: snippetEl?.textContent || "",
-          });
-        }
-      });
-      return items.slice(0, 8);
-    });
-
+    const html = await res.text();
+    const results = parseDDGResults(html).slice(0, 10);
     return NextResponse.json({ results });
   } catch (e) {
     return NextResponse.json({ error: String(e) }, { status: 500 });
-  } finally {
-    if (browser) await browser.close();
   }
+}
+
+function parseDDGResults(html: string) {
+  const results: { title: string; url: string; snippet: string }[] = [];
+
+  // Extract result blocks — DDG HTML wraps each result in <div class="result">
+  const resultBlocks = html.match(/<div class="result[^"]*"[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/g) ?? [];
+
+  for (const block of resultBlocks) {
+    // Title
+    const titleMatch = block.match(/<a[^>]*class="result__a"[^>]*>([\s\S]*?)<\/a>/);
+    const title = titleMatch ? stripTags(titleMatch[1]).trim() : "";
+
+    // URL — DDG encodes it in a data attr or href
+    const urlMatch = block.match(/href="([^"]+)"/) ;
+    let url = urlMatch ? urlMatch[1] : "";
+    if (url.startsWith("//duckduckgo.com/l/?uddg=")) {
+      try { url = decodeURIComponent(url.split("uddg=")[1].split("&")[0]); } catch {}
+    }
+
+    // Snippet
+    const snippetMatch = block.match(/<a[^>]*class="result__snippet"[^>]*>([\s\S]*?)<\/a>/);
+    const snippet = snippetMatch ? stripTags(snippetMatch[1]).trim() : "";
+
+    if (title && url && !url.includes("duckduckgo.com")) {
+      results.push({ title, url, snippet });
+    }
+  }
+
+  // Fallback: simpler regex if block parsing yields nothing
+  if (results.length === 0) {
+    const titleRe = /<a[^>]*class="result__a"[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/g;
+    let m;
+    while ((m = titleRe.exec(html)) !== null && results.length < 10) {
+      let url = m[1];
+      if (url.includes("uddg=")) {
+        try { url = decodeURIComponent(url.split("uddg=")[1].split("&")[0]); } catch {}
+      }
+      const title = stripTags(m[2]).trim();
+      if (title && url && !url.includes("duckduckgo.com")) {
+        results.push({ title, url, snippet: "" });
+      }
+    }
+  }
+
+  return results;
+}
+
+function stripTags(s: string) {
+  return s.replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&#x27;/g, "'").replace(/&quot;/g, '"');
 }
