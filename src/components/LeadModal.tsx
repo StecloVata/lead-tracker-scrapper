@@ -99,11 +99,11 @@ export default function LeadModal({ lead, onClose, onSave, onDelete, onAIScore }
             <h2 className="font-bold text-base" style={{ color: "var(--text)" }}>{isNew ? "Add new lead" : form.company}</h2>
             {!isNew && <p className="text-xs" style={{ color: "var(--muted)" }}>{lead.country} · {lead.vertical}</p>}
           </div>
-          {!isNew && onAIScore && (
-            <button onClick={handleAIScore} disabled={scoring} className="text-xs px-3 py-1.5 rounded-lg border transition-colors" style={{ borderColor: "var(--border)", color: "var(--muted)" }}>
-              {scoring ? "Scoring…" : lead.ai_score ? `AI: ${lead.ai_score}` : "Score with AI"}
-            </button>
-          )}
+          {lead.ai_score ? (
+            <span className="text-xs px-3 py-1.5 rounded-lg" style={{ background: "#f0fdf4", color: "#166534" }}>
+              AI fit: {lead.ai_score}/100
+            </span>
+          ) : null}
           <button onClick={onClose} className="text-lg leading-none" style={{ color: "var(--muted)" }}>✕</button>
         </div>
 

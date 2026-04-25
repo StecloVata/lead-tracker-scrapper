@@ -68,11 +68,6 @@ export default function LeadsClient() {
     return newLead;
   }, []);
 
-  const scoreWithAI = useCallback(async (leadId: string) => {
-    const res = await fetch("/api/ai-score", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ lead_id: leadId }) });
-    const { score, reasoning } = await res.json();
-    if (score) setLeads(prev => prev.map(l => l.id === leadId ? { ...l, ai_score: score, ai_reasoning: reasoning } : l));
-  }, []);
 
   function handleExportCSV() {
     downloadCSV(filtered, "adversus-leads.csv");
@@ -153,7 +148,7 @@ export default function LeadsClient() {
             <div className="text-center py-16" style={{ color: "var(--muted)" }}>No leads match your filters</div>
           ) : (
             filtered.map(lead => (
-              <LeadCard key={lead.id} lead={lead} onOpen={() => setSelectedLead(lead)} onStatusChange={s => updateLead(lead.id, { status: s })} onPriorityToggle={() => updateLead(lead.id, { is_priority: !lead.is_priority })} onAIScore={() => scoreWithAI(lead.id)} />
+              <LeadCard key={lead.id} lead={lead} onOpen={() => setSelectedLead(lead)} onStatusChange={s => updateLead(lead.id, { status: s })} onPriorityToggle={() => updateLead(lead.id, { is_priority: !lead.is_priority })} onAIScore={() => {}} />
             ))
           )}
         </div>
@@ -173,7 +168,7 @@ export default function LeadsClient() {
                 </div>
                 <div className="space-y-2 min-h-[60px]">
                   {colLeads.map(lead => (
-                    <LeadCard key={lead.id} lead={lead} compact onOpen={() => setSelectedLead(lead)} onStatusChange={s => updateLead(lead.id, { status: s })} onPriorityToggle={() => updateLead(lead.id, { is_priority: !lead.is_priority })} onAIScore={() => scoreWithAI(lead.id)} />
+                    <LeadCard key={lead.id} lead={lead} compact onOpen={() => setSelectedLead(lead)} onStatusChange={s => updateLead(lead.id, { status: s })} onPriorityToggle={() => updateLead(lead.id, { is_priority: !lead.is_priority })} onAIScore={() => {}} />
                   ))}
                 </div>
               </div>
@@ -198,7 +193,6 @@ export default function LeadsClient() {
             }
           }}
           onDelete={selectedLead.id ? () => { deleteLead(selectedLead.id); setSelectedLead(null); } : undefined}
-          onAIScore={selectedLead.id ? () => scoreWithAI(selectedLead.id) : undefined}
         />
       )}
     </div>

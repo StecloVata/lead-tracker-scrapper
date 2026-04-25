@@ -3,24 +3,13 @@
 import type { Lead } from "@/types/lead";
 
 export default function StatsBar({ leads }: { leads: Lead[] }) {
-  const stats = {
-    total: leads.length,
-    tier1: leads.filter(l => l.tier === 1).length,
-    contacted: leads.filter(l => !["Not contacted", "Not a fit"].includes(l.status)).length,
-    meetings: leads.filter(l => l.status === "Meeting booked").length,
-    qualified: leads.filter(l => ["Qualified", "Closed"].includes(l.status)).length,
-    avgAI: leads.filter(l => l.ai_score).length > 0
-      ? Math.round(leads.filter(l => l.ai_score).reduce((s, l) => s + (l.ai_score ?? 0), 0) / leads.filter(l => l.ai_score).length)
-      : null,
-  };
-
   const items = [
-    { label: "Total leads", value: stats.total, color: "var(--navy)" },
-    { label: "Tier 1", value: stats.tier1, color: "#065f46" },
-    { label: "In pipeline", value: stats.contacted, color: "#1d4ed8" },
-    { label: "Meetings", value: stats.meetings, color: "#9a3412" },
-    { label: "Qualified/Closed", value: stats.qualified, color: "#166534" },
-    { label: "Avg AI score", value: stats.avgAI ?? "—", color: stats.avgAI ? (stats.avgAI >= 70 ? "#16a34a" : "#ca8a04") : "var(--muted)" },
+    { label: "Total leads", value: leads.length, color: "var(--navy)" },
+    { label: "Tier 1", value: leads.filter(l => l.tier === 1).length, color: "#065f46" },
+    { label: "In pipeline", value: leads.filter(l => !["Not contacted", "Not a fit"].includes(l.status)).length, color: "#1d4ed8" },
+    { label: "Meetings", value: leads.filter(l => l.status === "Meeting booked").length, color: "#9a3412" },
+    { label: "Qualified", value: leads.filter(l => l.status === "Qualified").length, color: "#16a34a" },
+    { label: "Closed", value: leads.filter(l => l.status === "Closed").length, color: "#166534" },
   ];
 
   return (

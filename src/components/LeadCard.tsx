@@ -91,24 +91,13 @@ export default function LeadCard({ lead, compact, onOpen, onStatusChange, onPrio
           {lead.persona && <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>Persona: {lead.persona}</p>}
         </div>
 
-        {/* AI score */}
-        <div className="flex flex-col items-center gap-1 flex-shrink-0">
-          {lead.ai_score ? (
-            <div className="text-center">
-              <div className="text-lg font-bold leading-none" style={{ color: aiScoreColor(lead.ai_score) }}>{lead.ai_score}</div>
-              <div className="text-xs" style={{ color: "var(--muted)" }}>AI fit</div>
-            </div>
-          ) : (
-            <button
-              onClick={e => { e.stopPropagation(); onAIScore(); }}
-              className="text-xs px-2 py-1 rounded-lg border transition-colors"
-              style={{ borderColor: "var(--border)", color: "var(--muted)", background: "transparent" }}
-              title="Score with AI"
-            >
-              AI score
-            </button>
-          )}
-        </div>
+        {/* AI score — shown only if already scored */}
+        {lead.ai_score ? (
+          <div className="flex flex-col items-center gap-1 flex-shrink-0 text-center">
+            <div className="text-lg font-bold leading-none" style={{ color: aiScoreColor(lead.ai_score) }}>{lead.ai_score}</div>
+            <div className="text-xs" style={{ color: "var(--muted)" }}>AI fit</div>
+          </div>
+        ) : null}
 
         {/* Status dropdown */}
         <select
