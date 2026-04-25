@@ -151,14 +151,22 @@ export default function AnalyticsClient() {
         </Card>
 
         <Card title="Leads by country">
-          <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={countryData} layout="vertical" margin={{ left: 10, right: 10 }}>
-              <XAxis type="number" tick={{ fontSize: 11 }} />
-              <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} width={80} />
-              <Tooltip />
-              <Bar dataKey="value" fill="var(--navy)" radius={[0, 4, 4, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+          <div className="space-y-2">
+            {countryData.map(({ name, value }) => {
+              const pct = Math.round((value / countryData[0].value) * 100);
+              return (
+                <div key={name}>
+                  <div className="flex items-center justify-between mb-0.5">
+                    <span className="text-xs font-medium" style={{ color: "var(--text)" }}>{name}</span>
+                    <span className="text-xs font-semibold" style={{ color: "var(--navy)" }}>{value}</span>
+                  </div>
+                  <div className="h-1.5 rounded-full" style={{ background: "var(--border)" }}>
+                    <div className="h-1.5 rounded-full" style={{ background: "var(--navy)", width: `${pct}%` }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </Card>
       </div>
     </div>
