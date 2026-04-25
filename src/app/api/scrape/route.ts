@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
-export const maxDuration = 30;
+export const maxDuration = 60;
 
 export async function POST(request: Request) {
   const supabase = await createClient();
@@ -11,72 +11,51 @@ export async function POST(request: Request) {
   const { query, vertical, country } = await request.json();
   if (!query) return NextResponse.json({ error: "Query is required" }, { status: 400 });
 
-  const searchQuery = [query, vertical, country, "outbound call center dialer"]
+  const token = process.env.APIFY_API_TOKEN;
+  if (!token) return NextResponse.json({ error: "APIFY_API_TOKEN not set" }, { status: 500 });
+
+  const searchQuery = [query, vertical, country]
     .filter(Boolean)
     .join(" ");
 
   try {
     const res = await fetch(
-      `https://html.duckduckgo.com/html/?q=${encodeURIComponent(searchQuery)}`,
+      `https://api.apify.com/v2/acts/apify~google-search-scraper/run-sync-get-dataset-items?token=${token}&timeout=50&memory=256`,
       {
-        headers: {
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
-          "Accept": "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8",
-          "Accept-Language": "en-US,en;q=0.5",
-        },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          queries: searchQuery,
+          maxPagesPerQuery: 1,
+          resultsPerPage: 10,
+          languageCode: "en",
+          mobileResults: false,
+        }),
       }
     );
 
-    const html = await res.text();
-
-    // Extract titles + URLs
-    const linkRe = /class="result__a"[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/g;
-    // Extract snippets
-    const snippetRe = /class="result__snippet"[^>]*>([\s\S]*?)<\/a>/g;
-
-    const links: { title: string; url: string }[] = [];
-    let m;
-    while ((m = linkRe.exec(html)) !== null && links.length < 10) {
-      let url = m[1];
-      // DDG wraps URLs — decode the uddg= param
-      if (url.includes("uddg=")) {
-        try {
-          const raw = url.split("uddg=")[1].split("&")[0].split("&amp;")[0];
-          url = decodeURIComponent(raw);
-        } catch { continue; }
-      }
-      if (url.startsWith("//")) url = "https:" + url;
-      const title = stripTags(m[2]).trim();
-      if (title && url && !url.includes("duckduckgo.com")) {
-        links.push({ title, url });
-      }
+    if (!res.ok) {
+      const text = await res.text();
+      return NextResponse.json({ error: `Apify error: ${res.status} ${text}` }, { status: 500 });
     }
 
-    const snippets: string[] = [];
-    let s;
-    while ((s = snippetRe.exec(html)) !== null) {
-      snippets.push(stripTags(s[1]).trim());
-    }
+    const data = await res.json();
 
-    const results = links.map((l, i) => ({
-      title: l.title,
-      url: l.url,
-      snippet: snippets[i] ?? "",
-    }));
+    // Apify returns an array of page objects, each with an `organicResults` array
+    const organicResults = data?.[0]?.organicResults ?? [];
+
+    const results = organicResults.slice(0, 10).map((r: {
+      title?: string;
+      url?: string;
+      description?: string;
+    }) => ({
+      title: r.title ?? "",
+      url: r.url ?? "",
+      snippet: r.description ?? "",
+    })).filter((r: { title: string; url: string }) => r.title && r.url);
 
     return NextResponse.json({ results });
   } catch (e) {
     return NextResponse.json({ error: String(e) }, { status: 500 });
   }
-}
-
-function stripTags(s: string) {
-  return s
-    .replace(/<[^>]+>/g, "")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&#x27;/g, "'")
-    .replace(/&quot;/g, '"')
-    .replace(/\s+/g, " ");
 }
