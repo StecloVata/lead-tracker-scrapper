@@ -37,16 +37,21 @@ export default function OnboardingModal({ userId }: Props) {
     setLoading(true);
     if (seedChoice === "seed") {
       await fetch("/api/leads/seed", { method: "POST" });
+      localStorage.setItem(doneKey, "1");
+      setLoading(false);
+      setScreen("tutorial"); // only offer tour when 89 leads are loaded
+    } else {
+      localStorage.setItem(doneKey, "1");
+      setLoading(false);
+      setVisible(false); // start fresh → skip tutorial prompt entirely
     }
-    localStorage.setItem(doneKey, "1");
-    setLoading(false);
-    setScreen("tutorial");
   }
 
   function handleTutorialChoice(take: boolean) {
     setVisible(false);
     if (take) {
-      setTimeout(() => tutorial.start(), 300);
+      // Wait for LeadsClient to fetch and render the 89 leads before starting
+      setTimeout(() => tutorial.start(), 1200);
     }
   }
 

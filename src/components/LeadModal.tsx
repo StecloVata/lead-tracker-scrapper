@@ -183,7 +183,7 @@ export default function LeadModal({ lead, onClose, onSave, onDelete, onAIScore }
           </div>
 
           {/* Next action */}
-          <div className="rounded-xl p-4 space-y-3" style={{ background: "#f8f9ff", border: "1px solid #e0e4ff" }}>
+          <div data-tutorial="next-action-section" className="rounded-xl p-4 space-y-3" style={{ background: "#f8f9ff", border: "1px solid #e0e4ff" }}>
             <h3 className="text-xs font-semibold" style={{ color: "var(--navy)" }}>📋 Next action</h3>
             <div className="grid grid-cols-2 gap-3">
               <div className="col-span-2">

@@ -45,6 +45,25 @@ export default function LeadsClient() {
 
   useEffect(() => { fetchLeads(); }, []);
 
+  useEffect(() => {
+    function openFirst() {
+      setLeads(current => {
+        const first = current.find(l => !l.is_archived);
+        if (first) setSelectedLead(first);
+        return current;
+      });
+    }
+    function closeModal() {
+      setSelectedLead(null);
+    }
+    window.addEventListener("tutorial:open-first-lead", openFirst);
+    window.addEventListener("tutorial:close-modal", closeModal);
+    return () => {
+      window.removeEventListener("tutorial:open-first-lead", openFirst);
+      window.removeEventListener("tutorial:close-modal", closeModal);
+    };
+  }, []);
+
   const today = new Date().toISOString().slice(0, 10);
   const overdueLeads = leads.filter(l => l.next_action_date && l.next_action_date < today);
   const dueTodayLeads = leads.filter(l => l.next_action_date === today);

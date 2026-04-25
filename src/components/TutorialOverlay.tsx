@@ -11,6 +11,7 @@ interface Step {
   body: string;
   icon: string;
   tooltipSide: "top" | "bottom" | "left" | "right";
+  openModal?: boolean;
 }
 
 const STEPS: Step[] = [
@@ -39,12 +40,13 @@ const STEPS: Step[] = [
     tooltipSide: "bottom",
   },
   {
-    selector: '[data-tutorial="next-action-area"]',
+    selector: '[data-tutorial="next-action-section"]',
     route: "/",
     icon: "📋",
     title: "Follow-up Reminders",
-    body: "Set a next action and due date on any lead — it shows as a badge on the card: 🔴 overdue, 🟠 due today, 🔵 upcoming. Click the red or orange chips to instantly filter to those leads.",
-    tooltipSide: "bottom",
+    body: "Set a next action and due date on any lead here. It appears as a colour-coded badge on the card: 🔴 overdue, 🟠 due today, 🔵 upcoming — so you always know exactly who to call next.",
+    tooltipSide: "top",
+    openModal: true,
   },
   {
     selector: '[data-tutorial="nav-scraper"]',
@@ -90,6 +92,8 @@ export default function TutorialOverlay() {
     if (!active || !current) return;
 
     if (pathname !== current.route) {
+      // Close modal if leaving a modal step
+      window.dispatchEvent(new CustomEvent("tutorial:close-modal"));
       setNavigating(true);
       setRect(null);
       router.push(current.route);
@@ -97,7 +101,16 @@ export default function TutorialOverlay() {
     }
 
     setNavigating(false);
-    // Small delay to let page render
+
+    if (current.openModal) {
+      // Open first lead's modal then wait for it to render
+      window.dispatchEvent(new CustomEvent("tutorial:open-first-lead"));
+      const t = setTimeout(findElement, 400);
+      return () => clearTimeout(t);
+    }
+
+    // Close modal if this step doesn't need it
+    window.dispatchEvent(new CustomEvent("tutorial:close-modal"));
     const t = setTimeout(findElement, 120);
     return () => clearTimeout(t);
   }, [active, step, pathname, current, router, findElement]);
