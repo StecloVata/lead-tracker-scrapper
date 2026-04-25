@@ -57,6 +57,8 @@ export default function LeadFiltersBar({ filters, setFilters, sortBy, setSortBy,
         <option value="tier">Sort: Tier</option>
         <option value="company">Sort: Company</option>
         <option value="country">Sort: Country</option>
+        <option value="date_desc">Sort: Newest first</option>
+        <option value="date_asc">Sort: Oldest first</option>
         <option value="ai_score">Sort: AI Score</option>
       </select>
     </div>

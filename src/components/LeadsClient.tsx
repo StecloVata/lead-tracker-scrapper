@@ -47,6 +47,8 @@ export default function LeadsClient() {
     if (sortBy === "tier") list = [...list].sort((a, b) => a.tier - b.tier);
     if (sortBy === "company") list = [...list].sort((a, b) => a.company.localeCompare(b.company));
     if (sortBy === "country") list = [...list].sort((a, b) => a.country.localeCompare(b.country));
+    if (sortBy === "date_desc") list = [...list].sort((a, b) => new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime());
+    if (sortBy === "date_asc") list = [...list].sort((a, b) => new Date(a.created_at ?? 0).getTime() - new Date(b.created_at ?? 0).getTime());
     if (sortBy === "ai_score") list = [...list].sort((a, b) => (b.ai_score ?? 0) - (a.ai_score ?? 0));
     return list;
   }, [leads, filters, sortBy]);
