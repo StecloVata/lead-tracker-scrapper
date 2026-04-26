@@ -217,8 +217,8 @@ export default function LeadsClient() {
           {overdueLeads.length > 0 && (
             <button
               onClick={() => { setTab("pipeline"); setFilters(f => ({ ...f, search: "__overdue__" })); }}
-              className="text-xs px-3 py-1.5 rounded-lg font-medium transition-colors"
-              style={{ background: "#fee2e2", color: "#991b1b" }}
+              className="text-xs px-3.5 py-2 rounded-lg font-semibold transition-all"
+              style={{ background: "#fdecec", color: "#a02323", border: "1px solid #f5c6c6" }}
             >
               🔴 {overdueLeads.length} overdue
             </button>
@@ -226,8 +226,8 @@ export default function LeadsClient() {
           {dueTodayLeads.length > 0 && (
             <button
               onClick={() => { setTab("pipeline"); setFilters(f => ({ ...f, search: "__today__" })); }}
-              className="text-xs px-3 py-1.5 rounded-lg font-medium transition-colors"
-              style={{ background: "#fff7ed", color: "#9a3412" }}
+              className="text-xs px-3.5 py-2 rounded-lg font-semibold transition-all"
+              style={{ background: "var(--primary-soft)", color: "var(--primary)", border: "1px solid #ffd1c8" }}
             >
               🟠 {dueTodayLeads.length} due today
             </button>
@@ -235,8 +235,7 @@ export default function LeadsClient() {
           {(filters.search === "__overdue__" || filters.search === "__today__") && (
             <button
               onClick={() => setFilters(f => ({ ...f, search: "" }))}
-              className="text-xs px-3 py-1.5 rounded-lg transition-colors"
-              style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
+              className="btn-secondary text-xs px-3.5 py-2 rounded-lg"
             >
               ✕ Clear filter
             </button>
@@ -245,16 +244,16 @@ export default function LeadsClient() {
       )}
 
       {/* Pipeline / Archived tabs */}
-      <div data-tutorial="pipeline-tabs" className="flex items-center gap-1 p-1 rounded-xl w-fit" style={{ background: "var(--border)" }}>
+      <div data-tutorial="pipeline-tabs" className="flex items-center gap-1 p-1 rounded-xl w-fit" style={{ background: "var(--card-alt)", border: "1px solid var(--border)" }}>
         {(["pipeline", "archived"] as const).map(t => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className="text-xs px-4 py-1.5 rounded-lg font-medium capitalize transition-all"
+            className="text-xs px-4 py-2 rounded-lg font-semibold capitalize transition-all"
             style={{
-              background: tab === t ? "#fff" : "transparent",
+              background: tab === t ? "var(--card)" : "transparent",
               color: tab === t ? "var(--text)" : "var(--muted)",
-              boxShadow: tab === t ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
+              boxShadow: tab === t ? "var(--shadow-sm)" : "none",
             }}
           >
             {t === "pipeline" ? `Pipeline (${leads.length})` : `Archived (${archivedLeads.length})`}
@@ -282,25 +281,25 @@ export default function LeadsClient() {
             <div className="flex rounded-lg overflow-hidden border" style={{ borderColor: "var(--border)" }}>
               {(["list", "kanban"] as const).map(v => (
                 <button key={v} onClick={() => setView(v)}
-                  className="px-3 py-1.5 text-xs font-medium capitalize transition-colors"
-                  style={{ background: view === v ? "var(--navy)" : "#fff", color: view === v ? "#fff" : "var(--muted)" }}>
+                  className="px-3.5 py-2 text-xs font-semibold capitalize transition-colors"
+                  style={{ background: view === v ? "var(--navy)" : "var(--card)", color: view === v ? "#fff" : "var(--muted)" }}>
                   {v}
                 </button>
               ))}
             </div>
 
             {/* Export / Import */}
-            <button onClick={handleExportCSV} className="text-xs px-3 py-1.5 rounded-lg border transition-colors" style={{ borderColor: "var(--border)", color: "var(--text-sub)", background: "#fff" }}>
+            <button onClick={handleExportCSV} className="btn-secondary text-xs px-3.5 py-2 rounded-lg">
               Export CSV
             </button>
             <div className="flex items-center gap-1">
-              <label className="text-xs px-3 py-1.5 rounded-lg border cursor-pointer transition-colors" style={{ borderColor: "var(--border)", color: "var(--text-sub)", background: "#fff" }}>
+              <label className="btn-secondary text-xs px-3.5 py-2 rounded-lg cursor-pointer">
                 Import CSV
                 <input type="file" accept=".csv,.txt" className="hidden" onChange={handleImportCSV} />
               </label>
               <CSVInfoTooltip />
             </div>
-            <button onClick={downloadCSVTemplate} className="text-xs px-3 py-1.5 rounded-lg border transition-colors" style={{ borderColor: "var(--border)", color: "var(--text-sub)", background: "#fff" }} title="Download a blank CSV template with the correct column names">
+            <button onClick={downloadCSVTemplate} className="btn-secondary text-xs px-3.5 py-2 rounded-lg" title="Download a blank CSV template with the correct column names">
               Template ↓
             </button>
 
@@ -309,17 +308,16 @@ export default function LeadsClient() {
               <button
                 onClick={() => setShowArchiveMenu(m => !m)}
                 disabled={archiving}
-                className="text-xs px-3 py-1.5 rounded-lg border transition-colors disabled:opacity-50"
-                style={{ borderColor: "var(--border)", color: "var(--text-sub)", background: "#fff" }}
+                className="btn-secondary text-xs px-3.5 py-2 rounded-lg disabled:opacity-50"
               >
                 {archiving ? "Archiving…" : "🗂 Archive by status ▾"}
               </button>
               {showArchiveMenu && (
                 <div
-                  className="absolute right-0 top-full mt-1 rounded-xl shadow-lg z-50 py-1"
-                  style={{ background: "#fff", border: "1px solid var(--border)", minWidth: "200px" }}
+                  className="absolute right-0 top-full mt-1.5 rounded-xl z-50 py-1 overflow-hidden"
+                  style={{ background: "var(--card)", border: "1px solid var(--border)", boxShadow: "var(--shadow-lg)", minWidth: "220px" }}
                 >
-                  <p className="text-xs px-4 py-2 font-semibold" style={{ color: "var(--muted)" }}>Archive all leads with status:</p>
+                  <p className="text-xs px-4 py-2.5 font-bold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Archive leads with status</p>
                   {ARCHIVABLE_STATUSES.map(s => {
                     const n = leads.filter(l => l.status === s).length;
                     return (
@@ -327,11 +325,13 @@ export default function LeadsClient() {
                         key={s}
                         onClick={() => archiveByStatus(s)}
                         disabled={n === 0}
-                        className="w-full text-left px-4 py-2 text-xs hover:bg-gray-50 transition-colors flex items-center justify-between disabled:opacity-40"
+                        className="w-full text-left px-4 py-2 text-xs transition-colors flex items-center justify-between disabled:opacity-40 font-medium"
                         style={{ color: "var(--text)" }}
+                        onMouseEnter={e => n > 0 && (e.currentTarget.style.background = "var(--card-alt)")}
+                        onMouseLeave={e => e.currentTarget.style.background = "transparent"}
                       >
                         <span>{s}</span>
-                        <span className="font-semibold" style={{ color: "var(--muted)" }}>{n}</span>
+                        <span className="font-bold" style={{ color: "var(--muted)" }}>{n}</span>
                       </button>
                     );
                   })}
@@ -343,19 +343,20 @@ export default function LeadsClient() {
             <div className="relative" data-tutorial="add-lead-btn">
               <button
                 onClick={() => { setShowAddMenu(m => !m); setShowUrlInput(false); setExtractError(""); setExtractUrl(""); }}
-                className="text-xs px-3 py-1.5 rounded-lg font-semibold"
-                style={{ background: "var(--navy)", color: "#fff" }}
+                className="btn-primary text-xs px-4 py-2 rounded-lg"
               >
                 + Add lead ▾
               </button>
               {showAddMenu && (
                 <div
-                  className="absolute right-0 top-full mt-1 rounded-xl shadow-lg z-50 overflow-hidden"
-                  style={{ background: "#fff", border: "1px solid var(--border)", minWidth: "200px" }}
+                  className="absolute right-0 top-full mt-1.5 rounded-xl z-50 overflow-hidden"
+                  style={{ background: "var(--card)", border: "1px solid var(--border)", boxShadow: "var(--shadow-lg)", minWidth: "220px" }}
                 >
                   <button
-                    className="w-full text-left px-4 py-3 text-xs hover:bg-gray-50 transition-colors"
+                    className="w-full text-left px-4 py-3 text-xs transition-colors"
                     style={{ color: "var(--text)" }}
+                    onMouseEnter={e => e.currentTarget.style.background = "var(--card-alt)"}
+                    onMouseLeave={e => e.currentTarget.style.background = "transparent"}
                     onClick={() => { setShowAddMenu(false); setShowUrlInput(false); setSelectedLead({} as Lead); }}
                   >
                     <div className="font-semibold">✏️ Add manually</div>
@@ -363,8 +364,10 @@ export default function LeadsClient() {
                   </button>
                   <div style={{ borderTop: "1px solid var(--border)" }} />
                   <button
-                    className="w-full text-left px-4 py-3 text-xs hover:bg-gray-50 transition-colors"
+                    className="w-full text-left px-4 py-3 text-xs transition-colors"
                     style={{ color: "var(--text)" }}
+                    onMouseEnter={e => e.currentTarget.style.background = "var(--card-alt)"}
+                    onMouseLeave={e => e.currentTarget.style.background = "transparent"}
                     onClick={() => { setShowUrlInput(true); setShowAddMenu(false); }}
                   >
                     <div className="font-semibold">🔗 Add via link</div>
@@ -379,9 +382,11 @@ export default function LeadsClient() {
 
       {/* URL extraction panel */}
       {showUrlInput && (
-        <div className="rounded-xl p-4 space-y-3" style={{ background: "#fff", border: "1px solid var(--border)" }}>
-          <p className="text-xs font-semibold" style={{ color: "var(--text)" }}>🔗 Add lead via link</p>
-          <p className="text-xs" style={{ color: "var(--muted)" }}>Paste a company website or LinkedIn company page URL — we'll extract the details automatically.</p>
+        <div className="rounded-xl p-5 space-y-3" style={{ background: "var(--card)", border: "1px solid var(--border)", boxShadow: "var(--shadow-sm)" }}>
+          <div>
+            <p className="text-sm font-bold tracking-tight" style={{ color: "var(--text)" }}>🔗 Add lead via link</p>
+            <p className="text-xs mt-1 leading-relaxed" style={{ color: "var(--muted)" }}>Paste a company website or LinkedIn company page URL — we&apos;ll extract the details automatically.</p>
+          </div>
           <div className="flex gap-2">
             <input
               type="text"
@@ -389,37 +394,36 @@ export default function LeadsClient() {
               onChange={e => setExtractUrl(e.target.value)}
               onKeyDown={e => e.key === "Enter" && handleExtractLead()}
               placeholder="https://company.com or linkedin.com/company/..."
-              className="flex-1 text-xs px-3 py-2 rounded-lg outline-none"
-              style={{ border: "1px solid var(--border)", color: "var(--text)", background: "var(--surface)" }}
+              className="flex-1 text-sm px-3.5 py-2.5 rounded-lg outline-none transition-all"
+              style={{ border: "1px solid var(--border)", color: "var(--text)", background: "var(--card)" }}
               autoFocus
             />
             <button
               onClick={handleExtractLead}
               disabled={extracting || !extractUrl.trim()}
-              className="text-xs px-4 py-2 rounded-lg font-semibold disabled:opacity-50"
-              style={{ background: "var(--navy)", color: "#fff" }}
+              className="btn-primary text-xs px-4 py-2 rounded-lg"
             >
               {extracting ? "Extracting…" : "Extract"}
             </button>
             <button
               onClick={() => { setShowUrlInput(false); setExtractUrl(""); setExtractError(""); }}
-              className="text-xs px-3 py-2 rounded-lg"
-              style={{ border: "1px solid var(--border)", color: "var(--text-sub)" }}
+              className="btn-secondary text-xs px-3.5 py-2 rounded-lg"
             >
               Cancel
             </button>
           </div>
           {extractError && (
-            <p className="text-xs px-3 py-2 rounded-lg" style={{ background: "#fee2e2", color: "#991b1b" }}>{extractError}</p>
+            <p className="text-xs px-3 py-2.5 rounded-lg" style={{ background: "#fdecec", color: "#a02323", border: "1px solid #f5c6c6" }}>{extractError}</p>
           )}
         </div>
       )}
 
       {/* Import feedback */}
       {importMsg && (
-        <div className="p-3 rounded-xl text-xs font-medium" style={{
-          background: importMsg.type === "error" ? "#fee2e2" : importMsg.type === "warn" ? "#fff7ed" : "#dcfce7",
-          color: importMsg.type === "error" ? "#991b1b" : importMsg.type === "warn" ? "#9a3412" : "#166534",
+        <div className="px-4 py-3 rounded-xl text-xs font-medium" style={{
+          background: importMsg.type === "error" ? "#fdecec" : importMsg.type === "warn" ? "#fff4ee" : "#dcfce7",
+          color: importMsg.type === "error" ? "#a02323" : importMsg.type === "warn" ? "#9a3412" : "#166534",
+          border: `1px solid ${importMsg.type === "error" ? "#f5c6c6" : importMsg.type === "warn" ? "#fed7aa" : "#bbf7d0"}`,
         }}>
           {importMsg.text}
         </div>
@@ -427,13 +431,13 @@ export default function LeadsClient() {
 
       {/* Archive confirmation message */}
       {archiveMsg && (
-        <div className="p-3 rounded-xl text-xs font-medium" style={{ background: "#f3f4f6", color: "var(--text-sub)" }}>
+        <div className="px-4 py-3 rounded-xl text-xs font-medium" style={{ background: "var(--card-alt)", color: "var(--text-sub)", border: "1px solid var(--border)" }}>
           🗂 {archiveMsg}
         </div>
       )}
 
       {/* Count */}
-      <p className="text-xs" style={{ color: "var(--muted)" }}>
+      <p className="text-xs font-medium" style={{ color: "var(--muted)" }}>
         {filtered.length} of {tab === "archived" ? archivedLeads.length : leads.length} leads
       </p>
 
@@ -540,8 +544,8 @@ function CSVInfoTooltip() {
   return (
     <div className="relative" onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
       <button
-        className="w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center border transition-colors"
-        style={{ borderColor: "var(--border)", color: "var(--text-sub)", background: "#fff" }}
+        className="w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center transition-colors"
+        style={{ border: "1px solid var(--border)", color: "var(--text-sub)", background: "var(--card)" }}
         aria-label="CSV import requirements"
       >
         i
@@ -549,36 +553,36 @@ function CSVInfoTooltip() {
 
       {open && (
         <div
-          className="fixed rounded-2xl shadow-2xl z-50 overflow-hidden"
-          style={{ width: 520, background: "#fff", border: "1px solid var(--border)", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}
+          className="fixed rounded-2xl z-50 overflow-hidden"
+          style={{ width: 540, background: "var(--card)", border: "1px solid var(--border)", boxShadow: "var(--shadow-lg)", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}
         >
-          <div className="px-5 py-4 border-b" style={{ borderColor: "var(--border)", background: "#f8f9ff" }}>
-            <p className="text-sm font-bold" style={{ color: "var(--navy)" }}>CSV Import Requirements</p>
-            <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
+          <div className="px-5 py-4 border-b" style={{ borderColor: "var(--border)", background: "var(--navy-soft)" }}>
+            <p className="text-sm font-bold tracking-tight" style={{ color: "var(--navy)" }}>CSV Import Requirements</p>
+            <p className="text-xs mt-1 leading-relaxed" style={{ color: "var(--muted)" }}>
               First row must be headers · UTF-8 encoding · Rows without a company name are skipped
             </p>
           </div>
 
-          <div className="overflow-y-auto" style={{ maxHeight: 380 }}>
+          <div className="overflow-y-auto scrollbar-thin" style={{ maxHeight: 380 }}>
             <table className="w-full text-xs border-collapse">
               <thead>
-                <tr style={{ background: "#f3f4f6" }}>
-                  <th className="text-left px-4 py-2 font-semibold" style={{ color: "var(--text-sub)" }}>Column</th>
-                  <th className="text-left px-4 py-2 font-semibold" style={{ color: "var(--text-sub)" }}>Also recognised as</th>
-                  <th className="text-left px-4 py-2 font-semibold" style={{ color: "var(--text-sub)" }}>Accepted values</th>
+                <tr style={{ background: "var(--card-alt)" }}>
+                  <th className="text-left px-4 py-2.5 font-bold uppercase tracking-wider" style={{ color: "var(--text-sub)", fontSize: 10 }}>Column</th>
+                  <th className="text-left px-4 py-2.5 font-bold uppercase tracking-wider" style={{ color: "var(--text-sub)", fontSize: 10 }}>Also recognised as</th>
+                  <th className="text-left px-4 py-2.5 font-bold uppercase tracking-wider" style={{ color: "var(--text-sub)", fontSize: 10 }}>Accepted values</th>
                 </tr>
               </thead>
               <tbody>
                 {COLUMNS.map((col, i) => (
-                  <tr key={col.name} style={{ background: i % 2 === 0 ? "#fff" : "#fafafa", borderTop: "1px solid var(--border)" }}>
-                    <td className="px-4 py-2 align-top font-mono" style={{ color: "var(--navy)", whiteSpace: "nowrap" }}>
+                  <tr key={col.name} style={{ background: i % 2 === 0 ? "var(--card)" : "var(--card-alt)", borderTop: "1px solid var(--border)" }}>
+                    <td className="px-4 py-2.5 align-top font-mono font-semibold" style={{ color: "var(--navy)", whiteSpace: "nowrap" }}>
                       {col.name}
                       {col.req && (
-                        <span className="ml-1.5 text-xs font-sans font-semibold px-1 py-0.5 rounded" style={{ background: "#fee2e2", color: "#991b1b" }}>required</span>
+                        <span className="ml-1.5 text-xs font-sans font-bold px-1.5 py-0.5 rounded uppercase tracking-wider" style={{ background: "var(--primary-soft)", color: "var(--primary)", fontSize: 9 }}>required</span>
                       )}
                     </td>
-                    <td className="px-4 py-2 align-top" style={{ color: "var(--text-sub)" }}>{col.aliases}</td>
-                    <td className="px-4 py-2 align-top" style={{ color: "var(--muted)" }}>{col.values}</td>
+                    <td className="px-4 py-2.5 align-top" style={{ color: "var(--text-sub)" }}>{col.aliases}</td>
+                    <td className="px-4 py-2.5 align-top" style={{ color: "var(--muted)" }}>{col.values}</td>
                   </tr>
                 ))}
               </tbody>
@@ -586,9 +590,9 @@ function CSVInfoTooltip() {
           </div>
 
           {/* Example row */}
-          <div className="px-5 py-4 border-t" style={{ borderColor: "var(--border)", background: "#f8f9ff" }}>
-            <p className="text-xs font-semibold mb-2" style={{ color: "var(--text-sub)" }}>Example</p>
-            <div className="rounded-lg overflow-x-auto p-3 text-xs font-mono leading-relaxed" style={{ background: "#1a2355", color: "#57dadd" }}>
+          <div className="px-5 py-4 border-t" style={{ borderColor: "var(--border)", background: "var(--navy-soft)" }}>
+            <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: "var(--text-sub)" }}>Example</p>
+            <div className="rounded-lg overflow-x-auto p-3 text-xs font-mono leading-relaxed" style={{ background: "var(--navy-dark)", color: "var(--teal)" }}>
               <div style={{ color: "rgba(255,255,255,0.4)" }}>company,country,city,vertical,tier,size,website,notes,status</div>
               <div>Acme BPO,Sweden,Stockholm,BPO,2,50–200,acmebpo.se,Strong outbound focus,Not contacted</div>
             </div>

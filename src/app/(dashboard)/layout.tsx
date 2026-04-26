@@ -12,7 +12,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     <DashboardShell userId={user.id}>
       <div className="min-h-screen flex flex-col">
         <Nav user={user} />
-        <main className="flex-1 p-6 max-w-[1400px] mx-auto w-full">
+        <main className="flex-1 px-6 py-8 max-w-[1400px] mx-auto w-full">
           {children}
         </main>
       </div>

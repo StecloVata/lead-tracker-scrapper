@@ -86,34 +86,37 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--surface)" }}>
+    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: "var(--bg)" }}>
       <div className="w-full max-w-md">
         {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "var(--navy)" }}>
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center gap-3 mb-3">
+            <div className="w-11 h-11 rounded-2xl flex items-center justify-center shadow-md" style={{ background: "var(--navy)" }}>
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.63A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92v2z"/>
               </svg>
             </div>
-            <div>
-              <h1 className="text-xl font-bold" style={{ color: "var(--text)" }}>Adversus Leads</h1>
-              <p className="text-xs" style={{ color: "var(--muted)" }}>Lead tracking & discovery</p>
+            <div className="text-left">
+              <h1 className="text-xl font-bold tracking-tight" style={{ color: "var(--text)" }}>Adversus Leads</h1>
+              <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>Lead tracking & discovery</p>
             </div>
           </div>
         </div>
 
         {/* Card */}
-        <div className="rounded-2xl shadow-lg p-8" style={{ background: "#fff", border: "1px solid var(--border)" }}>
-          <h2 className="text-lg font-semibold mb-6" style={{ color: "var(--text)" }}>
-            {mode === "login" ? "Sign in to your account" : "Create an account"}
+        <div className="rounded-2xl p-8" style={{ background: "var(--card)", border: "1px solid var(--border)", boxShadow: "var(--shadow-lg)" }}>
+          <h2 className="text-lg font-bold mb-1 tracking-tight" style={{ color: "var(--text)" }}>
+            {mode === "login" ? "Welcome back" : "Create your account"}
           </h2>
+          <p className="text-sm mb-6" style={{ color: "var(--muted)" }}>
+            {mode === "login" ? "Sign in to continue to your pipeline." : "Set up a username and password to get started."}
+          </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {mode === "login" ? (
               <div>
-                <label className="block text-sm font-medium mb-1" style={{ color: "var(--text-sub)" }}>
-                  Username <span style={{ color: "var(--muted)", fontWeight: 400 }}>or email</span>
+                <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: "var(--text-sub)" }}>
+                  Username <span style={{ color: "var(--muted)", fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>or email</span>
                 </label>
                 <input
                   type="text"
@@ -121,14 +124,14 @@ export default function LoginPage() {
                   onChange={e => setIdentifier(e.target.value)}
                   required
                   autoComplete="username"
-                  className="w-full px-3 py-2.5 rounded-lg text-sm outline-none transition-all"
-                  style={{ border: "1px solid var(--border)", background: "var(--surface)", color: "var(--text)" }}
+                  className="w-full px-3.5 py-2.5 rounded-lg text-sm outline-none transition-all"
+                  style={{ border: "1px solid var(--border)", background: "var(--card)", color: "var(--text)" }}
                   placeholder="your_username"
                 />
               </div>
             ) : (
               <div>
-                <label className="block text-sm font-medium mb-1" style={{ color: "var(--text-sub)" }}>
+                <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: "var(--text-sub)" }}>
                   Username
                 </label>
                 <input
@@ -137,18 +140,18 @@ export default function LoginPage() {
                   onChange={e => setUsername(e.target.value)}
                   required
                   autoComplete="username"
-                  className="w-full px-3 py-2.5 rounded-lg text-sm outline-none transition-all"
-                  style={{ border: "1px solid var(--border)", background: "var(--surface)", color: "var(--text)" }}
+                  className="w-full px-3.5 py-2.5 rounded-lg text-sm outline-none transition-all"
+                  style={{ border: "1px solid var(--border)", background: "var(--card)", color: "var(--text)" }}
                   placeholder="your_username"
                 />
-                <p className="text-xs mt-1" style={{ color: "var(--muted)" }}>
+                <p className="text-xs mt-1.5" style={{ color: "var(--muted)" }}>
                   Letters, numbers, dots, dashes and underscores only.
                 </p>
               </div>
             )}
 
             <div>
-              <label className="block text-sm font-medium mb-1" style={{ color: "var(--text-sub)" }}>
+              <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: "var(--text-sub)" }}>
                 Password
               </label>
               <input
@@ -157,14 +160,14 @@ export default function LoginPage() {
                 onChange={e => setPassword(e.target.value)}
                 required
                 autoComplete={mode === "login" ? "current-password" : "new-password"}
-                className="w-full px-3 py-2.5 rounded-lg text-sm outline-none transition-all"
-                style={{ border: "1px solid var(--border)", background: "var(--surface)", color: "var(--text)" }}
+                className="w-full px-3.5 py-2.5 rounded-lg text-sm outline-none transition-all"
+                style={{ border: "1px solid var(--border)", background: "var(--card)", color: "var(--text)" }}
                 placeholder="••••••••"
               />
             </div>
 
             {error && (
-              <p className="text-sm px-3 py-2 rounded-lg" style={{ background: "#FCEBEB", color: "#A32D2D" }}>
+              <p className="text-sm px-3 py-2.5 rounded-lg" style={{ background: "#fdecec", color: "#a02323", border: "1px solid #f5c6c6" }}>
                 {error}
               </p>
             )}
@@ -172,21 +175,20 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 rounded-lg text-sm font-semibold transition-opacity disabled:opacity-50"
-              style={{ background: "var(--navy)", color: "#fff" }}
+              className="btn-primary w-full py-3 rounded-lg text-sm"
             >
               {loading ? "Please wait…" : mode === "login" ? "Sign in" : "Create account"}
             </button>
           </form>
 
-          <div className="mt-5 text-center text-sm" style={{ color: "var(--muted)" }}>
+          <div className="mt-6 pt-6 border-t text-center text-sm" style={{ color: "var(--muted)", borderColor: "var(--border)" }}>
             {mode === "login" ? (
               <>Don&apos;t have an account?{" "}
-                <button onClick={() => { setMode("signup"); setError(""); }} className="font-medium underline" style={{ color: "var(--navy)" }}>Sign up</button>
+                <button onClick={() => { setMode("signup"); setError(""); }} className="font-semibold transition-colors" style={{ color: "var(--primary)" }}>Sign up</button>
               </>
             ) : (
               <>Already have an account?{" "}
-                <button onClick={() => { setMode("login"); setError(""); }} className="font-medium underline" style={{ color: "var(--navy)" }}>Sign in</button>
+                <button onClick={() => { setMode("login"); setError(""); }} className="font-semibold transition-colors" style={{ color: "var(--primary)" }}>Sign in</button>
               </>
             )}
           </div>

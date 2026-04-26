@@ -1,24 +1,176 @@
 @import "tailwindcss";
 
 :root {
+  /* Brand palette — locked */
   --navy: #3639a4;
   --teal: #57dadd;
   --orange: #ff7364;
+  --white: #fafafb;
+
+  /* Derived shades */
   --navy-dark: #272980;
   --navy-mid: #4b4ec7;
-  --surface: #f0f0fa;
-  --border: #d0d2ee;
-  --muted: #7577b8;
-  --text: #1a1b4b;
-  --text-sub: #5557a0;
+  --navy-soft: #eef0fb;
+  --teal-soft: #e6fbfc;
+  --orange-hover: #ff5a48;
+  --orange-soft: #fff1ee;
+
+  /* Semantic surface tokens */
+  --bg: #fafafb;
+  --surface: #fafafb;          /* legacy alias */
+  --card: #ffffff;
+  --card-alt: #f5f6fb;
+  --border: #e6e8f4;
+  --border-strong: #c8cbe4;
+
+  /* Text */
+  --text: #181a3a;
+  --text-sub: #4a4e85;
+  --muted: #8b8eba;
+
+  /* Primary action color (orange CTAs) */
+  --primary: var(--orange);
+  --primary-hover: var(--orange-hover);
+  --primary-soft: var(--orange-soft);
+  --primary-text: #ffffff;
+
+  /* Focus ring */
+  --ring: rgba(255, 115, 100, 0.35);
+
+  /* Radius scale */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-xl: 18px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(24, 26, 58, 0.04);
+  --shadow-md: 0 4px 12px rgba(24, 26, 58, 0.06), 0 2px 4px rgba(24, 26, 58, 0.04);
+  --shadow-lg: 0 12px 32px rgba(24, 26, 58, 0.10), 0 4px 8px rgba(24, 26, 58, 0.06);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
 }
 
 body {
-  background: var(--surface);
-  color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-size: 14px;
+  line-height: 1.5;
+  letter-spacing: -0.005em;
 }
 
-.scrollbar-thin::-webkit-scrollbar { width: 4px; height: 4px; }
+h1, h2, h3, h4, h5 {
+  letter-spacing: -0.018em;
+  color: var(--text);
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+  font-feature-settings: inherit;
+}
+
+/* Universal focus ring — accessibility + Fitts's law: clear feedback */
+*:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: var(--r-md);
+}
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible {
+  box-shadow: 0 0 0 3px var(--ring);
+  outline: none;
+}
+
+/* Selection color */
+::selection {
+  background: var(--primary-soft);
+  color: var(--text);
+}
+
+/* Scrollbar */
+.scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
 .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
-.scrollbar-thin::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+.scrollbar-thin::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+/* Reusable button primitives — opt-in via className */
+.btn-primary {
+  background: var(--primary);
+  color: var(--primary-text);
+  border: 1px solid transparent;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  transition: background 0.15s ease, transform 0.05s ease, box-shadow 0.15s ease;
+  box-shadow: 0 1px 2px rgba(255, 115, 100, 0.35);
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--primary-hover);
+  box-shadow: 0 2px 6px rgba(255, 115, 100, 0.42);
+}
+.btn-primary:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.btn-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: var(--card);
+  color: var(--text-sub);
+  border: 1px solid var(--border);
+  font-weight: 500;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.btn-secondary:hover:not(:disabled) {
+  background: var(--card-alt);
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-sub);
+  border: 1px solid transparent;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.btn-ghost:hover:not(:disabled) {
+  background: var(--card-alt);
+  color: var(--text);
+}
+
+/* Card primitive */
+.surface-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Input focus polish */
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px var(--ring);
+  outline: none;
+}
+
+/* Subtle line-clamp utility (already in some Tailwind versions) */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

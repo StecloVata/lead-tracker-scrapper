@@ -65,8 +65,8 @@ export default function AnalyticsClient() {
   const avgScore = scoredLeads.length > 0 ? Math.round(scoredLeads.reduce((s, l) => s + (l.ai_score ?? 0), 0) / scoredLeads.length) : null;
 
   const Card = ({ children, title }: { children: React.ReactNode; title: string }) => (
-    <div className="rounded-2xl p-5" style={{ background: "#fff", border: "1px solid var(--border)" }}>
-      <h3 className="text-sm font-semibold mb-4" style={{ color: "var(--text)" }}>{title}</h3>
+    <div className="rounded-2xl p-5" style={{ background: "var(--card)", border: "1px solid var(--border)", boxShadow: "var(--shadow-sm)" }}>
+      <h3 className="text-sm font-bold tracking-tight mb-4" style={{ color: "var(--text)" }}>{title}</h3>
       {children}
     </div>
   );
@@ -74,22 +74,31 @@ export default function AnalyticsClient() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-bold" style={{ color: "var(--text)" }}>Analytics</h1>
-        <p className="text-sm mt-1" style={{ color: "var(--muted)" }}>Pipeline health and lead distribution</p>
+        <h1 className="text-2xl font-bold tracking-tight" style={{ color: "var(--text)" }}>Analytics</h1>
+        <p className="text-sm mt-1.5" style={{ color: "var(--muted)" }}>Pipeline health and lead distribution</p>
       </div>
 
       {/* KPI row */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         {[
-          { label: "Total leads", value: leads.length, color: "var(--navy)" },
-          { label: "In pipeline", value: `${convRate}%`, color: "#1d4ed8" },
+          { label: "Total leads", value: leads.length, color: "var(--primary)", accent: true },
+          { label: "In pipeline", value: `${convRate}%`, color: "var(--navy)" },
           { label: "Meeting rate", value: `${meetingRate}%`, color: "#9a3412" },
           { label: "Closed", value: closedCount, color: "#166534" },
           { label: "Avg AI score", value: avgScore ? `${avgScore}/100` : "—", color: avgScore && avgScore >= 70 ? "#16a34a" : "#ca8a04" },
-        ].map(({ label, value, color }) => (
-          <div key={label} className="rounded-xl p-4 text-center" style={{ background: "#fff", border: "1px solid var(--border)" }}>
-            <div className="text-2xl font-bold" style={{ color }}>{value}</div>
-            <div className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>{label}</div>
+        ].map(({ label, value, color, accent }) => (
+          <div
+            key={label}
+            className="rounded-xl p-4 text-center"
+            style={{
+              background: "var(--card)",
+              border: "1px solid var(--border)",
+              boxShadow: "var(--shadow-sm)",
+              borderTop: accent ? "3px solid var(--primary)" : "1px solid var(--border)",
+            }}
+          >
+            <div className="text-2xl font-bold tracking-tight leading-none" style={{ color }}>{value}</div>
+            <div className="text-xs mt-1.5 font-medium" style={{ color: "var(--muted)" }}>{label}</div>
           </div>
         ))}
       </div>
@@ -151,17 +160,17 @@ export default function AnalyticsClient() {
         </Card>
 
         <Card title="Leads by country">
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             {countryData.map(({ name, value }) => {
               const pct = Math.round((value / countryData[0].value) * 100);
               return (
                 <div key={name}>
-                  <div className="flex items-center justify-between mb-0.5">
-                    <span className="text-xs font-medium" style={{ color: "var(--text)" }}>{name}</span>
-                    <span className="text-xs font-semibold" style={{ color: "var(--navy)" }}>{value}</span>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs font-semibold" style={{ color: "var(--text)" }}>{name}</span>
+                    <span className="text-xs font-bold" style={{ color: "var(--navy)" }}>{value}</span>
                   </div>
-                  <div className="h-1.5 rounded-full" style={{ background: "var(--border)" }}>
-                    <div className="h-1.5 rounded-full" style={{ background: "var(--navy)", width: `${pct}%` }} />
+                  <div className="h-1.5 rounded-full" style={{ background: "var(--card-alt)" }}>
+                    <div className="h-1.5 rounded-full transition-all" style={{ background: "var(--navy)", width: `${pct}%` }} />
                   </div>
                 </div>
               );

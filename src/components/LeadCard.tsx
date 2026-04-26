@@ -45,19 +45,19 @@ export default function LeadCard({ lead, compact, onOpen, onStatusChange, onPrio
     return (
       <div
         onClick={onOpen}
-        className="rounded-xl p-3 cursor-pointer transition-shadow hover:shadow-md"
-        style={{ background: "#fff", border: "1px solid var(--border)" }}
+        className="rounded-xl p-3 cursor-pointer transition-all hover:-translate-y-0.5"
+        style={{ background: "var(--card)", border: "1px solid var(--border)", boxShadow: "var(--shadow-sm)" }}
       >
-        <div className="flex items-start justify-between gap-1 mb-1">
-          <span className="text-xs font-semibold leading-tight" style={{ color: "var(--text)" }}>{lead.company}</span>
-          <span className="text-xs px-1.5 py-0.5 rounded-full font-medium flex-shrink-0" style={{ background: tier.bg, color: tier.text }}>{tier.label}</span>
+        <div className="flex items-start justify-between gap-1 mb-1.5">
+          <span className="text-xs font-semibold leading-tight tracking-tight" style={{ color: "var(--text)" }}>{lead.company}</span>
+          <span className="text-xs px-1.5 py-0.5 rounded-full font-semibold flex-shrink-0" style={{ background: tier.bg, color: tier.text }}>{tier.label}</span>
         </div>
         <div className="flex items-center gap-1 text-xs" style={{ color: "var(--muted)" }}>
           <span>{FLAG[lead.country] ?? "🌍"}</span>
-          <span>{lead.country}</span>
+          <span className="font-medium">{lead.country}</span>
         </div>
         {lead.ai_score && (
-          <div className="mt-1.5 flex items-center gap-1">
+          <div className="mt-2 flex items-center gap-1">
             <span className="text-xs font-bold" style={{ color: aiScoreColor(lead.ai_score) }}>{lead.ai_score}</span>
             <span className="text-xs" style={{ color: "var(--muted)" }}>AI score</span>
           </div>
@@ -68,39 +68,46 @@ export default function LeadCard({ lead, compact, onOpen, onStatusChange, onPrio
 
   return (
     <div
-      className="rounded-xl transition-shadow hover:shadow-md"
-      style={{ background: "#fff", border: "1px solid var(--border)" }}
+      className="rounded-xl transition-all"
+      style={{
+        background: "var(--card)",
+        border: "1px solid var(--border)",
+        boxShadow: "var(--shadow-sm)",
+      }}
+      onMouseEnter={e => { e.currentTarget.style.boxShadow = "var(--shadow-md)"; e.currentTarget.style.borderColor = "var(--border-strong)"; }}
+      onMouseLeave={e => { e.currentTarget.style.boxShadow = "var(--shadow-sm)"; e.currentTarget.style.borderColor = "var(--border)"; }}
     >
       <div className="flex items-start gap-4 p-4">
         {/* Priority star */}
         <button
           onClick={e => { e.stopPropagation(); onPriorityToggle(); }}
-          className="text-lg leading-none mt-0.5 flex-shrink-0"
+          className="text-lg leading-none mt-0.5 flex-shrink-0 transition-transform hover:scale-110"
           title="Toggle priority"
+          style={{ color: lead.is_priority ? "var(--orange)" : "var(--muted)" }}
         >
-          {lead.is_priority ? "⭐" : "☆"}
+          {lead.is_priority ? "★" : "☆"}
         </button>
 
         {/* Main info */}
         <div className="flex-1 min-w-0 cursor-pointer" onClick={onOpen}>
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-semibold text-sm" style={{ color: "var(--text)" }}>{lead.company}</span>
-            <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: tier.bg, color: tier.text }}>{tier.label}</span>
-            <span className="text-xs" style={{ color: "var(--muted)" }}>{FLAG[lead.country] ?? "🌍"} {lead.country} · {lead.city}</span>
-            <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: "#f3f4f6", color: "var(--text-sub)" }}>{lead.vertical}</span>
+            <span className="font-semibold text-sm tracking-tight" style={{ color: "var(--text)" }}>{lead.company}</span>
+            <span className="text-xs px-2 py-0.5 rounded-full font-semibold" style={{ background: tier.bg, color: tier.text }}>{tier.label}</span>
+            <span className="text-xs font-medium" style={{ color: "var(--muted)" }}>{FLAG[lead.country] ?? "🌍"} {lead.country}{lead.city ? ` · ${lead.city}` : ""}</span>
+            <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: "var(--card-alt)", color: "var(--text-sub)" }}>{lead.vertical}</span>
           </div>
-          <p className="text-xs mt-1 line-clamp-2" style={{ color: "var(--text-sub)" }}>{lead.notes}</p>
-          {lead.persona && <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>Persona: {lead.persona}</p>}
+          {lead.notes && <p className="text-xs mt-1.5 line-clamp-2 leading-relaxed" style={{ color: "var(--text-sub)" }}>{lead.notes}</p>}
+          {lead.persona && <p className="text-xs mt-1" style={{ color: "var(--muted)" }}>Persona: <span style={{ color: "var(--text-sub)" }}>{lead.persona}</span></p>}
           {lead.next_action && <NextActionBadge action={lead.next_action} date={lead.next_action_date} />}
           {(lead.website || lead.linkedin) && (
-            <div className="flex gap-2 mt-2" onClick={e => e.stopPropagation()}>
+            <div className="flex gap-2 mt-2.5" onClick={e => e.stopPropagation()}>
               {lead.website && (
                 <a
                   href={lead.website.startsWith("http") ? lead.website : `https://${lead.website}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs px-2.5 py-1 rounded-lg font-medium transition-colors"
-                  style={{ background: "#f3f4f6", color: "var(--text-sub)", border: "1px solid var(--border)" }}
+                  className="text-xs px-2.5 py-1 rounded-lg font-medium transition-colors inline-flex items-center gap-1"
+                  style={{ background: "var(--card-alt)", color: "var(--text-sub)", border: "1px solid var(--border)" }}
                 >
                   🌐 Website
                 </a>
@@ -110,8 +117,8 @@ export default function LeadCard({ lead, compact, onOpen, onStatusChange, onPrio
                   href={lead.linkedin}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs px-2.5 py-1 rounded-lg font-medium transition-colors"
-                  style={{ background: "#e8f0fe", color: "#1d4ed8", border: "1px solid #bfdbfe" }}
+                  className="text-xs px-2.5 py-1 rounded-lg font-medium transition-colors inline-flex items-center gap-1"
+                  style={{ background: "var(--navy-soft)", color: "var(--navy)", border: "1px solid var(--border)" }}
                 >
                   in LinkedIn
                 </a>
@@ -122,9 +129,9 @@ export default function LeadCard({ lead, compact, onOpen, onStatusChange, onPrio
 
         {/* AI score — shown only if already scored */}
         {lead.ai_score ? (
-          <div className="flex flex-col items-center gap-1 flex-shrink-0 text-center">
-            <div className="text-lg font-bold leading-none" style={{ color: aiScoreColor(lead.ai_score) }}>{lead.ai_score}</div>
-            <div className="text-xs" style={{ color: "var(--muted)" }}>AI fit</div>
+          <div className="flex flex-col items-center gap-0.5 flex-shrink-0 text-center px-3" style={{ borderLeft: "1px solid var(--border)" }}>
+            <div className="text-xl font-bold leading-none tracking-tight" style={{ color: aiScoreColor(lead.ai_score) }}>{lead.ai_score}</div>
+            <div className="text-xs font-medium" style={{ color: "var(--muted)" }}>AI fit</div>
           </div>
         ) : null}
 
@@ -134,7 +141,7 @@ export default function LeadCard({ lead, compact, onOpen, onStatusChange, onPrio
             value={lead.status}
             onChange={e => { e.stopPropagation(); onStatusChange(e.target.value as LeadStatus); }}
             onClick={e => e.stopPropagation()}
-            className={cn("text-xs px-2 py-1 rounded-lg font-medium flex-shrink-0 outline-none cursor-pointer border-0")}
+            className={cn("text-xs px-2.5 py-1.5 rounded-lg font-semibold flex-shrink-0 outline-none cursor-pointer border-0")}
             style={{ background: status.bg, color: status.text }}
           >
             {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
@@ -145,7 +152,7 @@ export default function LeadCard({ lead, compact, onOpen, onStatusChange, onPrio
         {onRestore && (
           <button
             onClick={e => { e.stopPropagation(); onRestore(); }}
-            className="text-xs px-2.5 py-1 rounded-lg font-medium flex-shrink-0 transition-colors"
+            className="text-xs px-2.5 py-1.5 rounded-lg font-semibold flex-shrink-0 transition-colors"
             style={{ background: "#dcfce7", color: "#166534", border: "1px solid #bbf7d0" }}
             title="Restore lead"
           >
@@ -155,7 +162,7 @@ export default function LeadCard({ lead, compact, onOpen, onStatusChange, onPrio
         {onArchive && !lead.is_archived && (
           <button
             onClick={e => { e.stopPropagation(); onArchive(); }}
-            className="text-xs px-2 py-1 rounded-lg flex-shrink-0 transition-colors"
+            className="text-xs w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors"
             style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
             title="Archive lead"
           >

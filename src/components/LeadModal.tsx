@@ -87,31 +87,33 @@ export default function LeadModal({ lead, onClose, onSave, onDelete, onAIScore }
     setContacts(prev => prev.map((c, i) => i === idx ? { ...c, [field]: val } : c));
   }
 
-  const inputStyle = "w-full text-sm px-3 py-2 rounded-lg outline-none";
-  const inputCss = { border: "1px solid var(--border)", background: "var(--surface)", color: "var(--text)" };
-  const labelStyle = "block text-xs font-medium mb-1";
+  const inputStyle = "w-full text-sm px-3.5 py-2.5 rounded-lg outline-none transition-all";
+  const inputCss = { border: "1px solid var(--border)", background: "var(--card)", color: "var(--text)" };
+  const labelStyle = "block text-xs font-semibold mb-1.5 uppercase tracking-wider";
   const labelCss = { color: "var(--text-sub)" };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.4)" }} onClick={e => e.target === e.currentTarget && onClose()}>
-      <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl scrollbar-thin" style={{ background: "#fff" }}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(15,20,50,0.55)", backdropFilter: "blur(4px)" }} onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl scrollbar-thin" style={{ background: "var(--card)", boxShadow: "var(--shadow-lg)" }}>
         {/* Header */}
-        <div className="flex items-center gap-3 px-6 py-4 border-b sticky top-0 z-10" style={{ borderColor: "var(--border)", background: "#fff" }}>
-          <div className="flex-1">
-            <h2 className="font-bold text-base" style={{ color: "var(--text)" }}>{isNew ? "Add new lead" : form.company}</h2>
-            {!isNew && <p className="text-xs" style={{ color: "var(--muted)" }}>{lead.country} · {lead.vertical}</p>}
+        <div className="flex items-center gap-3 px-6 py-5 border-b sticky top-0 z-10" style={{ borderColor: "var(--border)", background: "var(--card)" }}>
+          <div className="flex-1 min-w-0">
+            <h2 className="font-bold text-base tracking-tight truncate" style={{ color: "var(--text)" }}>{isNew ? "Add new lead" : form.company}</h2>
+            {!isNew && <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>{lead.country} · {lead.vertical}</p>}
           </div>
           {lead.ai_score ? (
-            <span className="text-xs px-3 py-1.5 rounded-lg" style={{ background: "#f0fdf4", color: "#166534" }}>
+            <span className="text-xs font-semibold px-3 py-1.5 rounded-lg" style={{ background: "#f0fdf4", color: "#166534" }}>
               AI fit: {lead.ai_score}/100
             </span>
           ) : null}
-          <button onClick={onClose} className="text-lg leading-none" style={{ color: "var(--muted)" }}>✕</button>
+          <button onClick={onClose} className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors" style={{ color: "var(--muted)", background: "transparent" }}
+            onMouseEnter={e => e.currentTarget.style.background = "var(--card-alt)"}
+            onMouseLeave={e => e.currentTarget.style.background = "transparent"}>✕</button>
         </div>
 
         {/* AI reasoning */}
         {lead.ai_reasoning && (
-          <div className="mx-6 mt-4 p-3 rounded-lg text-xs" style={{ background: "#f0fdf4", color: "#166534" }}>
+          <div className="mx-6 mt-5 p-3.5 rounded-xl text-xs leading-relaxed" style={{ background: "#f0fdf4", color: "#166534", border: "1px solid #bbf7d0" }}>
             <strong>AI Assessment:</strong> {lead.ai_reasoning}
           </div>
         )}
@@ -183,8 +185,8 @@ export default function LeadModal({ lead, onClose, onSave, onDelete, onAIScore }
           </div>
 
           {/* Next action */}
-          <div data-tutorial="next-action-section" className="rounded-xl p-4 space-y-3" style={{ background: "#f8f9ff", border: "1px solid #e0e4ff" }}>
-            <h3 className="text-xs font-semibold" style={{ color: "var(--navy)" }}>📋 Next action</h3>
+          <div data-tutorial="next-action-section" className="rounded-xl p-4 space-y-3" style={{ background: "var(--navy-soft)", border: "1px solid var(--border)" }}>
+            <h3 className="text-xs font-bold uppercase tracking-wider" style={{ color: "var(--navy)" }}>📋 Next action</h3>
             <div className="grid grid-cols-2 gap-3">
               <div className="col-span-2">
                 <label style={labelCss} className={labelStyle}>What to do</label>
@@ -262,17 +264,17 @@ export default function LeadModal({ lead, onClose, onSave, onDelete, onAIScore }
         </div>
 
         {/* Footer */}
-        <div className="flex items-center gap-3 px-6 py-4 border-t sticky bottom-0" style={{ borderColor: "var(--border)", background: "#fff" }}>
+        <div className="flex items-center gap-3 px-6 py-4 border-t sticky bottom-0" style={{ borderColor: "var(--border)", background: "var(--card)" }}>
           {onDelete && (
-            <button onClick={onDelete} className="text-xs px-3 py-2 rounded-lg" style={{ color: "#dc2626", background: "#fee2e2" }}>
+            <button onClick={onDelete} className="text-xs px-3.5 py-2 rounded-lg font-semibold transition-colors" style={{ color: "#dc2626", background: "#fee2e2" }}>
               Delete lead
             </button>
           )}
           <div className="flex-1" />
-          <button onClick={onClose} className="text-xs px-4 py-2 rounded-lg border" style={{ borderColor: "var(--border)", color: "var(--muted)" }}>
+          <button onClick={onClose} className="btn-secondary text-xs px-4 py-2 rounded-lg">
             Cancel
           </button>
-          <button onClick={handleSave} disabled={saving} className="text-xs px-4 py-2 rounded-lg font-semibold disabled:opacity-50" style={{ background: "var(--navy)", color: "#fff" }}>
+          <button onClick={handleSave} disabled={saving} className="btn-primary text-xs px-5 py-2 rounded-lg">
             {saving ? "Saving…" : "Save changes"}
           </button>
         </div>

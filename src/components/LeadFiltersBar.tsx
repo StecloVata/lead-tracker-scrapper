@@ -14,15 +14,18 @@ interface Props {
 }
 
 export default function LeadFiltersBar({ filters, setFilters, sortBy, setSortBy, verticals, countries, tiers, statuses }: Props) {
-  const selectStyle = {
+  const selectStyle: React.CSSProperties = {
     border: "1px solid var(--border)",
-    background: "#fff",
+    background: "var(--card)",
     color: "var(--text-sub)",
-    fontSize: "12px",
-    padding: "6px 10px",
-    borderRadius: "8px",
+    fontSize: "13px",
+    fontWeight: 500,
+    padding: "7px 11px",
+    paddingRight: "26px",
+    borderRadius: "10px",
     outline: "none",
     cursor: "pointer",
+    transition: "border-color 0.15s ease, background 0.15s ease",
   };
 
   return (
@@ -33,8 +36,8 @@ export default function LeadFiltersBar({ filters, setFilters, sortBy, setSortBy,
         placeholder="Search leads…"
         value={filters.search}
         onChange={e => setFilters({ ...filters, search: e.target.value })}
-        className="text-xs px-3 py-1.5 rounded-lg outline-none w-48"
-        style={{ border: "1px solid var(--border)", background: "#fff", color: "var(--text)" }}
+        className="text-sm px-3.5 py-2 rounded-lg outline-none w-56 transition-all"
+        style={{ border: "1px solid var(--border)", background: "var(--card)", color: "var(--text)" }}
       />
 
       <select style={selectStyle} value={filters.vertical} onChange={e => setFilters({ ...filters, vertical: e.target.value })}>

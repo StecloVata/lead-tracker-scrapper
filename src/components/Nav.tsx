@@ -40,58 +40,62 @@ export default function Nav({ user }: { user: User }) {
   }
 
   return (
-    <nav className="sticky top-0 z-50 border-b" style={{ background: "var(--navy)", borderColor: "rgba(255,255,255,0.1)" }}>
-      <div className="max-w-[1400px] mx-auto px-6 flex items-center h-14 gap-6">
+    <nav className="sticky top-0 z-50" style={{ background: "var(--navy)", boxShadow: "0 1px 0 rgba(255,255,255,0.06)" }}>
+      <div className="max-w-[1400px] mx-auto px-6 flex items-center h-16 gap-2">
         {/* Logo */}
-        <div className="flex items-center gap-2 mr-4">
-          <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "var(--teal)" }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--navy-dark)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <div className="flex items-center gap-2.5 mr-6">
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "var(--teal)" }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--navy-dark)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.63A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92v2z"/>
             </svg>
           </div>
-          <span className="font-bold text-sm" style={{ color: "#fff" }}>Adversus Leads</span>
+          <div className="flex flex-col leading-none">
+            <span className="font-bold text-sm tracking-tight" style={{ color: "#fff" }}>Adversus Leads</span>
+          </div>
         </div>
 
         {/* Nav links */}
-        {LINKS.map(link => {
-          const active = pathname === link.href;
-          const tutorialAttr = link.href === "/scraper" ? "nav-scraper" : link.href === "/analytics" ? "nav-analytics" : undefined;
-          return (
-            <Link
-              key={link.href}
-              href={link.href}
-              data-tutorial={tutorialAttr}
-              className="flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg transition-all"
-              style={{
-                color: active ? "var(--navy-dark)" : "rgba(255,255,255,0.75)",
-                background: active ? "var(--teal)" : "transparent",
-                fontWeight: active ? 600 : 400,
-              }}
-            >
-              {link.icon}
-              {link.label}
-            </Link>
-          );
-        })}
+        <div className="flex items-center gap-1">
+          {LINKS.map(link => {
+            const active = pathname === link.href;
+            const tutorialAttr = link.href === "/scraper" ? "nav-scraper" : link.href === "/analytics" ? "nav-analytics" : undefined;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                data-tutorial={tutorialAttr}
+                className="flex items-center gap-2 text-sm px-3.5 py-2 rounded-lg transition-all"
+                style={{
+                  color: active ? "var(--navy-dark)" : "rgba(255,255,255,0.78)",
+                  background: active ? "var(--teal)" : "transparent",
+                  fontWeight: active ? 600 : 500,
+                }}
+              >
+                {link.icon}
+                {link.label}
+              </Link>
+            );
+          })}
+        </div>
 
         {/* Spacer */}
         <div className="flex-1" />
 
-        {/* User */}
-        <div className="flex items-center gap-3">
+        {/* User cluster */}
+        <div className="flex items-center gap-2">
           <button
             onClick={tutorial.start}
-            className="text-xs px-3 py-1.5 rounded-lg transition-all"
-            style={{ background: "rgba(87,218,221,0.15)", color: "var(--teal)" }}
+            className="text-xs px-3 py-2 rounded-lg transition-all flex items-center gap-1.5 font-medium"
+            style={{ background: "rgba(87,218,221,0.18)", color: "var(--teal)" }}
             title="Restart the tour"
           >
-            🗺️ Tour
+            <span style={{ fontSize: 13 }}>🗺️</span> Tour
           </button>
-          <span className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>{displayName}</span>
+          <span className="text-xs px-2.5 font-medium" style={{ color: "rgba(255,255,255,0.6)" }}>{displayName}</span>
           <button
             onClick={signOut}
-            className="text-xs px-3 py-1.5 rounded-lg transition-all"
-            style={{ background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.75)" }}
+            className="text-xs px-3 py-2 rounded-lg transition-all font-medium"
+            style={{ background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.85)" }}
           >
             Sign out
           </button>

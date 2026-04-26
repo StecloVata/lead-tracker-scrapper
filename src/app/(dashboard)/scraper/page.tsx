@@ -117,33 +117,34 @@ export default function ScraperPage() {
   }
 
   const newLeads = results.filter(l => l.isNew);
-  const selectStyle = {
+  const selectStyle: React.CSSProperties = {
     border: "1px solid var(--border)",
-    background: "#fff",
+    background: "var(--card)",
     color: "var(--text)",
     fontSize: "13px",
-    padding: "8px 12px",
+    padding: "9px 12px",
     borderRadius: "10px",
     outline: "none",
     cursor: "pointer",
     width: "100%",
+    fontWeight: 500,
   };
 
   return (
     <div className="max-w-4xl space-y-6">
       <div>
-        <h1 className="text-xl font-bold" style={{ color: "var(--text)" }}>Lead Generator</h1>
-        <p className="text-sm mt-1" style={{ color: "var(--muted)" }}>
+        <h1 className="text-2xl font-bold tracking-tight" style={{ color: "var(--text)" }}>Lead Generator</h1>
+        <p className="text-sm mt-1.5 leading-relaxed" style={{ color: "var(--muted)" }}>
           Find new companies that match your ICP. Duplicates from your existing list are flagged automatically.
         </p>
       </div>
 
       {/* Filter panel */}
-      <div className="rounded-2xl p-6 space-y-5" style={{ background: "#fff", border: "1px solid var(--border)" }}>
+      <div className="rounded-2xl p-6 space-y-5" style={{ background: "var(--card)", border: "1px solid var(--border)", boxShadow: "var(--shadow-sm)" }}>
         <div className="grid grid-cols-2 gap-4">
           {/* Region */}
           <div>
-            <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-sub)" }}>Region</label>
+            <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: "var(--text-sub)" }}>Region</label>
             <select style={selectStyle} value={region} onChange={e => { setRegion(e.target.value); setCountry(""); }}>
               <option value="">Any region</option>
               {REGIONS.map(r => <option key={r}>{r}</option>)}
@@ -152,8 +153,8 @@ export default function ScraperPage() {
 
           {/* Country */}
           <div>
-            <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-sub)" }}>
-              Specific country {!region && <span style={{ color: "var(--muted)" }}>(select region first)</span>}
+            <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: "var(--text-sub)" }}>
+              Specific country {!region && <span className="font-normal normal-case tracking-normal" style={{ color: "var(--muted)" }}>(select region first)</span>}
             </label>
             <select style={{ ...selectStyle, opacity: availableCountries.length ? 1 : 0.5 }} value={country} onChange={e => setCountry(e.target.value)} disabled={!availableCountries.length}>
               <option value="">Any country in region</option>
@@ -163,7 +164,7 @@ export default function ScraperPage() {
 
           {/* Vertical */}
           <div>
-            <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-sub)" }}>Industry / Vertical</label>
+            <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: "var(--text-sub)" }}>Industry / Vertical</label>
             <select style={selectStyle} value={vertical} onChange={e => setVertical(e.target.value)}>
               <option value="">Any vertical</option>
               {VERTICALS.map(v => <option key={v}>{v}</option>)}
@@ -172,7 +173,7 @@ export default function ScraperPage() {
 
           {/* Company size */}
           <div>
-            <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-sub)" }}>Company size</label>
+            <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: "var(--text-sub)" }}>Company size</label>
             <select style={selectStyle} value={size} onChange={e => setSize(e.target.value)}>
               {SIZES.map(s => <option key={s}>{s}</option>)}
             </select>
@@ -181,21 +182,22 @@ export default function ScraperPage() {
 
         {/* Tier */}
         <div>
-          <label className="block text-xs font-medium mb-2" style={{ color: "var(--text-sub)" }}>Target tier</label>
+          <label className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: "var(--text-sub)" }}>Target tier</label>
           <div className="flex gap-2">
             {TIERS.map(t => (
               <button
                 key={t.value}
                 onClick={() => setTier(t.value)}
-                className="flex-1 text-xs px-3 py-2 rounded-lg transition-all text-left"
+                className="flex-1 text-xs px-3 py-2.5 rounded-lg transition-all text-left"
                 style={{
-                  border: `1px solid ${tier === t.value ? "var(--navy)" : "var(--border)"}`,
-                  background: tier === t.value ? "var(--navy)" : "#fff",
+                  border: `1px solid ${tier === t.value ? "var(--primary)" : "var(--border)"}`,
+                  background: tier === t.value ? "var(--primary)" : "var(--card)",
                   color: tier === t.value ? "#fff" : "var(--text-sub)",
+                  boxShadow: tier === t.value ? "0 1px 2px rgba(255,115,100,0.3)" : "none",
                 }}
               >
-                <div className="font-semibold">T{t.value}</div>
-                <div className="opacity-75 mt-0.5" style={{ fontSize: "10px" }}>
+                <div className="font-bold">T{t.value}</div>
+                <div className="mt-0.5" style={{ fontSize: "10px", opacity: tier === t.value ? 0.85 : 0.7 }}>
                   {t.label.split("—")[1]?.trim()}
                 </div>
               </button>
@@ -206,8 +208,8 @@ export default function ScraperPage() {
         {/* Count slider */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <label className="text-xs font-medium" style={{ color: "var(--text-sub)" }}>Number of leads to find</label>
-            <span className="text-sm font-bold" style={{ color: "var(--navy)" }}>{count}</span>
+            <label className="text-xs font-bold uppercase tracking-wider" style={{ color: "var(--text-sub)" }}>Number of leads to find</label>
+            <span className="text-base font-bold tracking-tight" style={{ color: "var(--primary)" }}>{count}</span>
           </div>
           <input
             type="range"
@@ -217,9 +219,9 @@ export default function ScraperPage() {
             value={count}
             onChange={e => setCount(Number(e.target.value))}
             className="w-full"
-            style={{ accentColor: "var(--navy)" }}
+            style={{ accentColor: "var(--primary)" }}
           />
-          <div className="flex justify-between text-xs mt-1" style={{ color: "var(--muted)" }}>
+          <div className="flex justify-between text-xs mt-1.5 font-medium" style={{ color: "var(--muted)" }}>
             <span>5</span><span>10</span><span>15</span><span>20</span><span>25</span><span>30</span>
           </div>
         </div>
@@ -227,8 +229,7 @@ export default function ScraperPage() {
         <button
           onClick={handleSearch}
           disabled={loading}
-          className="w-full py-3 rounded-xl font-semibold text-sm disabled:opacity-50 transition-opacity"
-          style={{ background: "var(--navy)", color: "#fff" }}
+          className="btn-primary w-full py-3.5 rounded-xl text-sm"
         >
           {loading ? "Finding leads…" : `Find ${count} leads`}
         </button>
@@ -236,7 +237,7 @@ export default function ScraperPage() {
 
       {/* Error */}
       {error && (
-        <div className="p-4 rounded-xl text-sm" style={{ background: "#fee2e2", color: "#991b1b" }}>
+        <div className="p-4 rounded-xl text-sm font-medium" style={{ background: "#fdecec", color: "#a02323", border: "1px solid #f5c6c6" }}>
           {error}
         </div>
       )}
@@ -245,7 +246,7 @@ export default function ScraperPage() {
       {loading && (
         <div className="space-y-3">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-20 rounded-xl animate-pulse" style={{ background: "var(--border)" }} />
+            <div key={i} className="h-20 rounded-xl animate-pulse" style={{ background: "var(--card-alt)" }} />
           ))}
         </div>
       )}
@@ -255,20 +256,19 @@ export default function ScraperPage() {
         <div className="space-y-3">
           {/* Results header */}
           <div className="flex items-center gap-3">
-            <p className="text-xs flex-1" style={{ color: "var(--muted)" }}>
-              <span className="font-semibold" style={{ color: "var(--text)" }}>{newLeads.length} new</span> leads found
+            <p className="text-sm flex-1" style={{ color: "var(--muted)" }}>
+              <span className="font-bold" style={{ color: "var(--text)" }}>{newLeads.length} new</span> leads found
               {results.length - newLeads.length > 0 && ` · ${results.length - newLeads.length} already in your list`}
             </p>
             {newLeads.length > 0 && (
-              <button onClick={selectAll} className="text-xs px-3 py-1.5 rounded-lg border" style={{ borderColor: "var(--border)", color: "var(--text-sub)" }}>
+              <button onClick={selectAll} className="btn-secondary text-xs px-3.5 py-2 rounded-lg">
                 Select all new
               </button>
             )}
             {selected.size > 0 && (
               <button
                 onClick={addSelected}
-                className="text-xs px-4 py-1.5 rounded-lg font-semibold"
-                style={{ background: "var(--navy)", color: "#fff" }}
+                className="btn-primary text-xs px-4 py-2 rounded-lg"
               >
                 Add {selected.size} to pipeline
               </button>
@@ -276,7 +276,7 @@ export default function ScraperPage() {
           </div>
 
           {addedCount > 0 && (
-            <div className="p-3 rounded-xl text-sm" style={{ background: "#dcfce7", color: "#166534" }}>
+            <div className="p-3.5 rounded-xl text-sm font-medium" style={{ background: "#dcfce7", color: "#166534", border: "1px solid #bbf7d0" }}>
               ✓ {addedCount} leads added to your pipeline
             </div>
           )}
@@ -287,37 +287,37 @@ export default function ScraperPage() {
               onClick={() => lead.isNew && toggleSelect(i)}
               className="rounded-xl p-4 transition-all"
               style={{
-                background: "#fff",
-                border: `1px solid ${selected.has(i) ? "var(--navy)" : "var(--border)"}`,
-                opacity: lead.isNew ? 1 : 0.5,
+                background: "var(--card)",
+                border: `1px solid ${selected.has(i) ? "var(--primary)" : "var(--border)"}`,
+                opacity: lead.isNew ? 1 : 0.55,
                 cursor: lead.isNew ? "pointer" : "default",
-                boxShadow: selected.has(i) ? "0 0 0 2px var(--navy)" : "none",
+                boxShadow: selected.has(i) ? "0 0 0 3px var(--ring)" : "var(--shadow-sm)",
               }}
             >
               <div className="flex items-start gap-3">
                 {/* Checkbox */}
                 <div
-                  className="w-4 h-4 rounded flex-shrink-0 mt-0.5 flex items-center justify-center border"
+                  className="w-5 h-5 rounded flex-shrink-0 mt-0.5 flex items-center justify-center transition-all"
                   style={{
-                    background: selected.has(i) ? "var(--navy)" : "#fff",
-                    borderColor: selected.has(i) ? "var(--navy)" : "var(--border)",
+                    background: selected.has(i) ? "var(--primary)" : "var(--card)",
+                    border: `1.5px solid ${selected.has(i) ? "var(--primary)" : "var(--border-strong)"}`,
                   }}
                 >
-                  {selected.has(i) && <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                  {selected.has(i) && <svg width="11" height="11" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>}
                 </div>
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-semibold text-sm" style={{ color: "var(--text)" }}>{lead.company}</span>
-                    <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: "#eff6ff", color: "#1d4ed8" }}>T{lead.tier}</span>
-                    {lead.country && <span className="text-xs" style={{ color: "var(--muted)" }}>{lead.country}</span>}
-                    {lead.vertical && <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: "#f3f4f6", color: "var(--text-sub)" }}>{lead.vertical}</span>}
-                    {!lead.isNew && <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: "#fef3c7", color: "#92400e" }}>Already in list</span>}
+                    <span className="font-semibold text-sm tracking-tight" style={{ color: "var(--text)" }}>{lead.company}</span>
+                    <span className="text-xs px-2 py-0.5 rounded-full font-semibold" style={{ background: "var(--navy-soft)", color: "var(--navy)" }}>T{lead.tier}</span>
+                    {lead.country && <span className="text-xs font-medium" style={{ color: "var(--muted)" }}>{lead.country}</span>}
+                    {lead.vertical && <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: "var(--card-alt)", color: "var(--text-sub)" }}>{lead.vertical}</span>}
+                    {!lead.isNew && <span className="text-xs px-2 py-0.5 rounded-full font-semibold" style={{ background: "#fef3c7", color: "#92400e" }}>Already in list</span>}
                   </div>
-                  {lead.notes && <p className="text-xs mt-1 line-clamp-2" style={{ color: "var(--text-sub)" }}>{lead.notes}</p>}
-                  <div className="flex gap-3 mt-1">
-                    {lead.website && <a href={`https://${lead.website}`} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="text-xs underline" style={{ color: "var(--navy)" }}>{lead.website}</a>}
-                    {lead.linkedin_url && <a href={lead.linkedin_url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="text-xs underline" style={{ color: "var(--navy)" }}>LinkedIn</a>}
+                  {lead.notes && <p className="text-xs mt-1.5 line-clamp-2 leading-relaxed" style={{ color: "var(--text-sub)" }}>{lead.notes}</p>}
+                  <div className="flex gap-3 mt-1.5">
+                    {lead.website && <a href={`https://${lead.website}`} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="text-xs font-medium hover:underline" style={{ color: "var(--primary)" }}>{lead.website}</a>}
+                    {lead.linkedin_url && <a href={lead.linkedin_url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="text-xs font-medium hover:underline" style={{ color: "var(--navy)" }}>LinkedIn</a>}
                   </div>
                 </div>
               </div>
@@ -327,9 +327,9 @@ export default function ScraperPage() {
       )}
 
       {!loading && results.length === 0 && !error && (
-        <div className="text-center py-16" style={{ color: "var(--muted)" }}>
-          <div className="text-4xl mb-3">🎯</div>
-          <p className="text-sm">Set your filters above and click <strong>Find leads</strong></p>
+        <div className="text-center py-20 rounded-2xl" style={{ color: "var(--muted)", background: "var(--card)", border: "1px dashed var(--border-strong)" }}>
+          <div className="text-5xl mb-3">🎯</div>
+          <p className="text-sm">Set your filters above and click <strong style={{ color: "var(--primary)" }}>Find leads</strong></p>
         </div>
       )}
     </div>

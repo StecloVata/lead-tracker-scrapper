@@ -190,14 +190,14 @@ export default function TutorialOverlay() {
             position: "fixed",
             zIndex: 9998,
             pointerEvents: "none",
-            borderRadius: 12,
+            borderRadius: 14,
             transition: "all 0.25s ease",
             top: rect.top - PAD,
             left: rect.left - PAD,
             width: rect.width + PAD * 2,
             height: rect.height + PAD * 2,
-            boxShadow: "0 0 0 9999px rgba(10,15,40,0.72)",
-            outline: "2px solid rgba(87,218,221,0.7)",
+            boxShadow: "0 0 0 9999px rgba(15,20,50,0.68)",
+            outline: "2px solid var(--teal)",
           }}
         />
       )}
@@ -209,7 +209,7 @@ export default function TutorialOverlay() {
 
       {/* Loading state — no rect yet */}
       {!rect && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 9998, background: "rgba(10,15,40,0.72)" }} />
+        <div style={{ position: "fixed", inset: 0, zIndex: 9998, background: "rgba(15,20,50,0.68)" }} />
       )}
 
       {/* Tooltip */}
@@ -232,24 +232,24 @@ export default function TutorialOverlay() {
           </div>
         )}
 
-        <div className="rounded-2xl shadow-2xl overflow-hidden" style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.08)" }}>
+        <div className="rounded-2xl overflow-hidden" style={{ background: "var(--card)", border: "1px solid var(--border)", boxShadow: "var(--shadow-lg)" }}>
           {/* Progress bar */}
-          <div className="h-1 w-full" style={{ background: "#e5e7eb" }}>
+          <div className="h-1 w-full" style={{ background: "var(--card-alt)" }}>
             <div
               className="h-1 transition-all duration-500"
-              style={{ width: `${progress}%`, background: "var(--teal)" }}
+              style={{ width: `${progress}%`, background: "var(--primary)" }}
             />
           </div>
 
           <div className="p-5">
             {/* Step counter */}
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ background: "#eff6ff", color: "#1d4ed8" }}>
+              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full" style={{ background: "var(--primary-soft)", color: "var(--primary)" }}>
                 Step {step + 1} of {total}
               </span>
               <button
                 onClick={skip}
-                className="text-xs transition-colors"
+                className="text-xs transition-colors font-medium"
                 style={{ color: "var(--muted)" }}
               >
                 Skip tour ✕
@@ -259,11 +259,11 @@ export default function TutorialOverlay() {
             {/* Title */}
             <div className="flex items-center gap-2 mb-2">
               <span className="text-xl">{current.icon}</span>
-              <h3 className="font-bold text-base" style={{ color: "var(--text)" }}>{current.title}</h3>
+              <h3 className="font-bold text-base tracking-tight" style={{ color: "var(--text)" }}>{current.title}</h3>
             </div>
 
             {/* Body */}
-            <p className="text-sm leading-relaxed mb-4" style={{ color: "var(--text-sub)" }}>
+            <p className="text-sm leading-relaxed mb-5" style={{ color: "var(--text-sub)" }}>
               {navigating ? "Navigating…" : current.body}
             </p>
 
@@ -272,8 +272,7 @@ export default function TutorialOverlay() {
               {step > 0 && (
                 <button
                   onClick={prev}
-                  className="text-xs px-3 py-2 rounded-lg border transition-colors"
-                  style={{ borderColor: "var(--border)", color: "var(--text-sub)" }}
+                  className="btn-secondary text-xs px-3 py-2 rounded-lg"
                 >
                   ← Back
                 </button>
@@ -281,15 +280,15 @@ export default function TutorialOverlay() {
               <div className="flex-1" />
 
               {/* Dot indicators */}
-              <div className="flex gap-1 items-center">
+              <div className="flex gap-1.5 items-center">
                 {Array.from({ length: total }).map((_, i) => (
                   <div
                     key={i}
                     className="rounded-full transition-all"
                     style={{
-                      width: i === step ? 16 : 6,
+                      width: i === step ? 18 : 6,
                       height: 6,
-                      background: i === step ? "var(--navy)" : "#d1d5db",
+                      background: i === step ? "var(--primary)" : "var(--border-strong)",
                     }}
                   />
                 ))}
@@ -298,8 +297,7 @@ export default function TutorialOverlay() {
               <div className="flex-1" />
               <button
                 onClick={next}
-                className="text-xs px-4 py-2 rounded-lg font-semibold transition-colors"
-                style={{ background: "var(--navy)", color: "#fff" }}
+                className="btn-primary text-xs px-4 py-2 rounded-lg"
               >
                 {step === total - 1 ? "Finish 🎉" : "Next →"}
               </button>
