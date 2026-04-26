@@ -116,7 +116,7 @@ export default function LeadModal({ lead, onClose, onSave, onDelete, onAIScore }
               AI fit: {lead.ai_score}/100
             </span>
           ) : null}
-          <button onClick={onClose} className="text-lg leading-none" style={{ color: "var(--muted)" }}>✕</button>
+          <button onClick={onClose} className="text-lg leading-none hover-text" style={{ color: "var(--muted)" }}>✕</button>
         </div>
 
         {/* Tabs — only shown for existing leads */}
@@ -275,7 +275,7 @@ export default function LeadModal({ lead, onClose, onSave, onDelete, onAIScore }
           <div>
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-semibold" style={{ color: "var(--text)" }}>Contacts</h3>
-              <button onClick={addContact} className="text-xs px-2 py-1 rounded-lg" style={{ background: "var(--surface)", color: "var(--navy)", border: "1px solid var(--border)" }}>
+              <button onClick={addContact} className="text-xs px-2 py-1 rounded-lg hover-btn" style={{ background: "var(--surface)", color: "var(--navy)", border: "1px solid var(--border)" }}>
                 + Add contact
               </button>
             </div>
@@ -309,15 +309,15 @@ export default function LeadModal({ lead, onClose, onSave, onDelete, onAIScore }
         {/* Footer — hidden on Signals tab */}
         <div className="flex items-center gap-3 px-6 py-4 border-t sticky bottom-0" style={{ borderColor: "var(--border)", background: "#fff", display: !isNew && activeTab === "signals" ? "none" : undefined }}>
           {onDelete && (
-            <button onClick={onDelete} className="text-xs px-3 py-2 rounded-lg" style={{ color: "#dc2626", background: "#fee2e2" }}>
+            <button onClick={onDelete} className="text-xs px-3 py-2 rounded-lg hover-btn-destructive" style={{ color: "#dc2626", background: "#fee2e2" }}>
               Delete lead
             </button>
           )}
           <div className="flex-1" />
-          <button onClick={onClose} className="text-xs px-4 py-2 rounded-lg border" style={{ borderColor: "var(--border)", color: "var(--muted)" }}>
+          <button onClick={onClose} className="text-xs px-4 py-2 rounded-lg border hover-btn" style={{ borderColor: "var(--border)", color: "var(--muted)" }}>
             Cancel
           </button>
-          <button onClick={handleSave} disabled={saving} className="text-xs px-4 py-2 rounded-lg font-semibold disabled:opacity-50" style={{ background: "var(--orange)", color: "#fff" }}>
+          <button onClick={handleSave} disabled={saving} className="text-xs px-4 py-2 rounded-lg font-semibold disabled:opacity-50 hover-btn" style={{ background: "var(--orange)", color: "#fff" }}>
             {saving ? "Saving…" : "Save changes"}
           </button>
         </div>

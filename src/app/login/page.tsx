@@ -172,7 +172,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 rounded-lg text-sm font-semibold transition-opacity disabled:opacity-50"
+              className="w-full py-2.5 rounded-lg text-sm font-semibold disabled:opacity-50 hover-btn"
               style={{ background: "var(--orange)", color: "#fff" }}
             >
               {loading ? "Please wait…" : mode === "login" ? "Sign in" : "Create account"}

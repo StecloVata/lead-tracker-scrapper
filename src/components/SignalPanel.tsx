@@ -120,7 +120,7 @@ export default function SignalPanel({ leadId, onUnreadChange }: Props) {
         <button
           onClick={runScan}
           disabled={scanning}
-          className="text-xs px-3 py-1.5 rounded-lg font-medium disabled:opacity-50 transition-colors"
+          className="text-xs px-3 py-1.5 rounded-lg font-medium disabled:opacity-50 hover-btn"
           style={{ background: "var(--orange)", color: "#fff" }}
         >
           {scanning ? "Scanning…" : "⚡ Scan now"}
@@ -192,7 +192,7 @@ export default function SignalPanel({ leadId, onUnreadChange }: Props) {
                       {!signal.is_read && (
                         <button
                           onClick={() => markOneRead(signal.id)}
-                          className="text-xs"
+                          className="text-xs hover-text"
                           style={{ color: "var(--muted)" }}
                         >
                           Mark read

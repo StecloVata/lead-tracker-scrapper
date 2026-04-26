@@ -64,6 +64,14 @@ const STEPS: Step[] = [
     body: "Track your pipeline health: conversion rate, meeting rate, leads by country, tier distribution, and status breakdown. Check it weekly to see where deals are getting stuck.",
     tooltipSide: "bottom",
   },
+  {
+    selector: '[data-tutorial="signals-scan-btn"]',
+    route: "/signals",
+    icon: "⚡",
+    title: "Signals — Know Who to Call",
+    body: "Hit Scan all leads and the app searches Google News for buying triggers across your whole pipeline: funding rounds, leadership changes, hiring sprees, expansions. Leads with signals get a coloured border — red means contact today.",
+    tooltipSide: "bottom",
+  },
 ];
 
 interface Rect { top: number; left: number; width: number; height: number }
@@ -249,7 +257,7 @@ export default function TutorialOverlay() {
               </span>
               <button
                 onClick={skip}
-                className="text-xs transition-colors"
+                className="text-xs hover-text"
                 style={{ color: "var(--muted)" }}
               >
                 Skip tour ✕
@@ -272,7 +280,7 @@ export default function TutorialOverlay() {
               {step > 0 && (
                 <button
                   onClick={prev}
-                  className="text-xs px-3 py-2 rounded-lg border transition-colors"
+                  className="text-xs px-3 py-2 rounded-lg border hover-btn"
                   style={{ borderColor: "var(--border)", color: "var(--text-sub)" }}
                 >
                   ← Back
@@ -298,7 +306,7 @@ export default function TutorialOverlay() {
               <div className="flex-1" />
               <button
                 onClick={next}
-                className="text-xs px-4 py-2 rounded-lg font-semibold transition-colors"
+                className="text-xs px-4 py-2 rounded-lg font-semibold hover-btn"
                 style={{ background: "var(--orange)", color: "#fff" }}
               >
                 {step === total - 1 ? "Finish 🎉" : "Next →"}

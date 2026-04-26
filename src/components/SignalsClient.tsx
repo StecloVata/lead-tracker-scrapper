@@ -134,9 +134,10 @@ export default function SignalsClient() {
           </p>
         </div>
         <button
+          data-tutorial="signals-scan-btn"
           onClick={scanAll}
           disabled={scanning}
-          className="flex items-center gap-2 text-sm px-4 py-2 rounded-xl font-semibold disabled:opacity-50 transition-colors flex-shrink-0"
+          className="flex items-center gap-2 text-sm px-4 py-2 rounded-xl font-semibold disabled:opacity-50 flex-shrink-0 hover-btn"
           style={{ background: "var(--orange)", color: "#fff" }}
         >
           {scanning ? (
@@ -199,7 +200,7 @@ export default function SignalsClient() {
           {totalUnread > 0 && (
             <button
               onClick={() => groups.forEach(g => markLeadRead(g.lead_id))}
-              className="text-xs px-3 py-1.5 rounded-lg font-medium ml-auto transition-colors"
+              className="text-xs px-3 py-1.5 rounded-lg font-medium ml-auto hover-btn"
               style={{ background: "#eff6ff", color: "#1d4ed8", border: "1px solid #bfdbfe" }}
             >
               Mark all read
@@ -246,7 +247,7 @@ export default function SignalsClient() {
               >
                 {/* Lead header */}
                 <div
-                  className="flex items-center gap-3 px-5 py-3.5 cursor-pointer"
+                  className="flex items-center gap-3 px-5 py-3.5 hover-lift"
                   style={{ background: u.bg }}
                   onClick={() => toggleExpand(group.lead_id)}
                 >
@@ -276,7 +277,7 @@ export default function SignalsClient() {
                     {group.unread_count > 0 && (
                       <button
                         onClick={e => { e.stopPropagation(); markLeadRead(group.lead_id); }}
-                        className="text-xs px-2.5 py-1 rounded-lg"
+                        className="text-xs px-2.5 py-1 rounded-lg hover-btn"
                         style={{ background: "rgba(0,0,0,0.06)", color: "var(--text-sub)" }}
                       >
                         Mark read

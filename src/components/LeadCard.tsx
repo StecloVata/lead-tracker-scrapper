@@ -76,7 +76,7 @@ export default function LeadCard({ lead, compact, onOpen, onStatusChange, onPrio
 
   return (
     <div
-      className="rounded-xl transition-shadow hover:shadow-md"
+      className="rounded-xl hover-lift"
       style={{
         background: "#fff",
         border: "1px solid var(--border)",
@@ -87,7 +87,7 @@ export default function LeadCard({ lead, compact, onOpen, onStatusChange, onPrio
         {/* Priority star */}
         <button
           onClick={e => { e.stopPropagation(); onPriorityToggle(); }}
-          className="text-lg leading-none mt-0.5 flex-shrink-0"
+          className="text-lg leading-none mt-0.5 flex-shrink-0 hover-text"
           title="Toggle priority"
         >
           {lead.is_priority ? "⭐" : "☆"}
@@ -112,7 +112,7 @@ export default function LeadCard({ lead, compact, onOpen, onStatusChange, onPrio
                   href={lead.website.startsWith("http") ? lead.website : `https://${lead.website}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs px-2.5 py-1 rounded-lg font-medium transition-colors"
+                  className="text-xs px-2.5 py-1 rounded-lg font-medium hover-btn"
                   style={{ background: "#f3f4f6", color: "var(--text-sub)", border: "1px solid var(--border)" }}
                 >
                   🌐 Website
@@ -123,7 +123,7 @@ export default function LeadCard({ lead, compact, onOpen, onStatusChange, onPrio
                   href={lead.linkedin}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs px-2.5 py-1 rounded-lg font-medium transition-colors"
+                  className="text-xs px-2.5 py-1 rounded-lg font-medium hover-btn"
                   style={{ background: "#e8f0fe", color: "#1d4ed8", border: "1px solid #bfdbfe" }}
                 >
                   in LinkedIn
@@ -158,7 +158,7 @@ export default function LeadCard({ lead, compact, onOpen, onStatusChange, onPrio
         {onRestore && (
           <button
             onClick={e => { e.stopPropagation(); onRestore(); }}
-            className="text-xs px-2.5 py-1 rounded-lg font-medium flex-shrink-0 transition-colors"
+            className="text-xs px-2.5 py-1 rounded-lg font-medium flex-shrink-0 hover-btn"
             style={{ background: "#dcfce7", color: "#166534", border: "1px solid #bbf7d0" }}
             title="Restore lead"
           >
@@ -168,7 +168,7 @@ export default function LeadCard({ lead, compact, onOpen, onStatusChange, onPrio
         {onArchive && !lead.is_archived && (
           <button
             onClick={e => { e.stopPropagation(); onArchive(); }}
-            className="text-xs px-2 py-1 rounded-lg flex-shrink-0 transition-colors"
+            className="text-xs px-2 py-1 rounded-lg flex-shrink-0 hover-btn-destructive"
             style={{ color: "var(--muted)", border: "1px solid var(--border)" }}
             title="Archive lead"
           >

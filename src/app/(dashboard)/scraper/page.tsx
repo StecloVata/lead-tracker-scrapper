@@ -187,7 +187,7 @@ export default function ScraperPage() {
               <button
                 key={t.value}
                 onClick={() => setTier(t.value)}
-                className="flex-1 text-xs px-3 py-2 rounded-lg transition-all text-left"
+                className="flex-1 text-xs px-3 py-2 rounded-lg hover-btn text-left"
                 style={{
                   border: `1px solid ${tier === t.value ? "var(--orange)" : "var(--border)"}`,
                   background: tier === t.value ? "var(--orange)" : "#fff",
@@ -227,7 +227,7 @@ export default function ScraperPage() {
         <button
           onClick={handleSearch}
           disabled={loading}
-          className="w-full py-3 rounded-xl font-semibold text-sm disabled:opacity-50 transition-opacity"
+          className="w-full py-3 rounded-xl font-semibold text-sm disabled:opacity-50 hover-btn"
           style={{ background: "var(--orange)", color: "#fff" }}
         >
           {loading ? "Finding leads…" : `Find ${count} leads`}

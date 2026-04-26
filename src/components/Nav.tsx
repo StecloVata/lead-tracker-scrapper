@@ -80,7 +80,7 @@ export default function Nav({ user }: { user: User }) {
               key={link.href}
               href={link.href}
               data-tutorial={tutorialAttr}
-              className="relative flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg transition-all"
+              className="relative flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg hover-glass"
               style={{
                 color: active ? "var(--navy-dark)" : "rgba(255,255,255,0.75)",
                 background: active ? "var(--teal)" : "transparent",
@@ -108,7 +108,7 @@ export default function Nav({ user }: { user: User }) {
         <div className="flex items-center gap-3">
           <button
             onClick={tutorial.start}
-            className="text-xs px-3 py-1.5 rounded-lg transition-all"
+            className="text-xs px-3 py-1.5 rounded-lg hover-btn"
             style={{ background: "rgba(87,218,221,0.15)", color: "var(--teal)" }}
             title="Restart the tour"
           >
@@ -117,7 +117,7 @@ export default function Nav({ user }: { user: User }) {
           <span className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>{displayName}</span>
           <button
             onClick={signOut}
-            className="text-xs px-3 py-1.5 rounded-lg transition-all"
+            className="text-xs px-3 py-1.5 rounded-lg hover-btn"
             style={{ background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.75)" }}
           >
             Sign out
