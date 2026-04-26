@@ -127,7 +127,7 @@ export default function OnboardingModal({ userId }: Props) {
               onClick={handleLeadsChoice}
               disabled={loading}
               className="w-full py-3 rounded-xl font-semibold text-sm disabled:opacity-60 transition-opacity"
-              style={{ background: "var(--navy)", color: "#fff" }}
+              style={{ background: "var(--orange)", color: "#fff" }}
             >
               {loading ? "Setting up…" : "Continue →"}
             </button>
@@ -155,7 +155,7 @@ export default function OnboardingModal({ userId }: Props) {
                 <span className="text-2xl mt-0.5">🎯</span>
                 <div>
                   <div className="font-semibold text-sm" style={{ color: "var(--text)" }}>
-                    Yes, show me around <span className="text-xs font-normal ml-1 px-1.5 py-0.5 rounded-full" style={{ background: "var(--navy)", color: "#fff" }}>Recommended</span>
+                    Yes, show me around <span className="text-xs font-normal ml-1 px-1.5 py-0.5 rounded-full" style={{ background: "var(--orange)", color: "#fff" }}>Recommended</span>
                   </div>
                   <div className="text-xs mt-1" style={{ color: "var(--muted)" }}>
                     Step-by-step spotlight guide covering the pipeline, adding leads, follow-ups, the scraper, and analytics.

@@ -189,8 +189,8 @@ export default function ScraperPage() {
                 onClick={() => setTier(t.value)}
                 className="flex-1 text-xs px-3 py-2 rounded-lg transition-all text-left"
                 style={{
-                  border: `1px solid ${tier === t.value ? "var(--navy)" : "var(--border)"}`,
-                  background: tier === t.value ? "var(--navy)" : "#fff",
+                  border: `1px solid ${tier === t.value ? "var(--orange)" : "var(--border)"}`,
+                  background: tier === t.value ? "var(--orange)" : "#fff",
                   color: tier === t.value ? "#fff" : "var(--text-sub)",
                 }}
               >
@@ -228,7 +228,7 @@ export default function ScraperPage() {
           onClick={handleSearch}
           disabled={loading}
           className="w-full py-3 rounded-xl font-semibold text-sm disabled:opacity-50 transition-opacity"
-          style={{ background: "var(--navy)", color: "#fff" }}
+          style={{ background: "var(--orange)", color: "#fff" }}
         >
           {loading ? "Finding leads…" : `Find ${count} leads`}
         </button>
@@ -268,7 +268,7 @@ export default function ScraperPage() {
               <button
                 onClick={addSelected}
                 className="text-xs px-4 py-1.5 rounded-lg font-semibold"
-                style={{ background: "var(--navy)", color: "#fff" }}
+                style={{ background: "var(--orange)", color: "#fff" }}
               >
                 Add {selected.size} to pipeline
               </button>
@@ -288,10 +288,10 @@ export default function ScraperPage() {
               className="rounded-xl p-4 transition-all"
               style={{
                 background: "#fff",
-                border: `1px solid ${selected.has(i) ? "var(--navy)" : "var(--border)"}`,
+                border: `1px solid ${selected.has(i) ? "var(--orange)" : "var(--border)"}`,
                 opacity: lead.isNew ? 1 : 0.5,
                 cursor: lead.isNew ? "pointer" : "default",
-                boxShadow: selected.has(i) ? "0 0 0 2px var(--navy)" : "none",
+                boxShadow: selected.has(i) ? "0 0 0 2px var(--orange)" : "none",
               }}
             >
               <div className="flex items-start gap-3">
@@ -299,8 +299,8 @@ export default function ScraperPage() {
                 <div
                   className="w-4 h-4 rounded flex-shrink-0 mt-0.5 flex items-center justify-center border"
                   style={{
-                    background: selected.has(i) ? "var(--navy)" : "#fff",
-                    borderColor: selected.has(i) ? "var(--navy)" : "var(--border)",
+                    background: selected.has(i) ? "var(--orange)" : "#fff",
+                    borderColor: selected.has(i) ? "var(--orange)" : "var(--border)",
                   }}
                 >
                   {selected.has(i) && <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}

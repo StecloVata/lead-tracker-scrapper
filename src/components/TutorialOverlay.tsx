@@ -299,7 +299,7 @@ export default function TutorialOverlay() {
               <button
                 onClick={next}
                 className="text-xs px-4 py-2 rounded-lg font-semibold transition-colors"
-                style={{ background: "var(--navy)", color: "#fff" }}
+                style={{ background: "var(--orange)", color: "#fff" }}
               >
                 {step === total - 1 ? "Finish 🎉" : "Next →"}
               </button>

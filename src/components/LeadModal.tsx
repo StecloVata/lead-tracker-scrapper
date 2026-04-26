@@ -272,7 +272,7 @@ export default function LeadModal({ lead, onClose, onSave, onDelete, onAIScore }
           <button onClick={onClose} className="text-xs px-4 py-2 rounded-lg border" style={{ borderColor: "var(--border)", color: "var(--muted)" }}>
             Cancel
           </button>
-          <button onClick={handleSave} disabled={saving} className="text-xs px-4 py-2 rounded-lg font-semibold disabled:opacity-50" style={{ background: "var(--navy)", color: "#fff" }}>
+          <button onClick={handleSave} disabled={saving} className="text-xs px-4 py-2 rounded-lg font-semibold disabled:opacity-50" style={{ background: "var(--orange)", color: "#fff" }}>
             {saving ? "Saving…" : "Save changes"}
           </button>
         </div>

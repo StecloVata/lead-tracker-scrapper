@@ -344,7 +344,7 @@ export default function LeadsClient() {
               <button
                 onClick={() => { setShowAddMenu(m => !m); setShowUrlInput(false); setExtractError(""); setExtractUrl(""); }}
                 className="text-xs px-3 py-1.5 rounded-lg font-semibold"
-                style={{ background: "var(--navy)", color: "#fff" }}
+                style={{ background: "var(--orange)", color: "#fff" }}
               >
                 + Add lead ▾
               </button>
@@ -397,7 +397,7 @@ export default function LeadsClient() {
               onClick={handleExtractLead}
               disabled={extracting || !extractUrl.trim()}
               className="text-xs px-4 py-2 rounded-lg font-semibold disabled:opacity-50"
-              style={{ background: "var(--navy)", color: "#fff" }}
+              style={{ background: "var(--orange)", color: "#fff" }}
             >
               {extracting ? "Extracting…" : "Extract"}
             </button>
