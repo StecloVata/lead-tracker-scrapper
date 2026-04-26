@@ -98,7 +98,7 @@ export default function LeadCard({ lead, compact, onOpen, onStatusChange, onPrio
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-semibold text-sm" style={{ color: "var(--text)" }}>{lead.company}</span>
             <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: tier.bg, color: tier.text }}>{tier.label}</span>
-            <SignalBadge unreadCount={signalUnread} maxUrgency={signalMaxUrgency} onClick={e => { e.stopPropagation(); onOpen(); }} />
+            <SignalBadge unreadCount={signalUnread} maxUrgency={signalMaxUrgency} />
             <span className="text-xs" style={{ color: "var(--muted)" }}>{FLAG[lead.country] ?? "🌍"} {lead.country} · {lead.city}</span>
             <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: "#f3f4f6", color: "var(--text-sub)" }}>{lead.vertical}</span>
           </div>
