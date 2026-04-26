@@ -2,6 +2,7 @@
 
 import type { Lead, LeadStatus } from "@/types/lead";
 import { cn } from "@/lib/utils";
+import SignalBadge from "./SignalBadge";
 
 const FLAG: Record<string, string> = {
   Sweden: "🇸🇪", Norway: "🇳🇴", Denmark: "🇩🇰", UK: "🇬🇧", Netherlands: "🇳🇱",
@@ -35,9 +36,11 @@ interface Props {
   onAIScore: () => void;
   onArchive?: () => void;
   onRestore?: () => void;
+  signalUnread?: number;
+  signalMaxUrgency?: 1 | 2 | 3 | null;
 }
 
-export default function LeadCard({ lead, compact, onOpen, onStatusChange, onPriorityToggle, onAIScore, onArchive, onRestore }: Props) {
+export default function LeadCard({ lead, compact, onOpen, onStatusChange, onPriorityToggle, onAIScore, onArchive, onRestore, signalUnread = 0, signalMaxUrgency = null }: Props) {
   const tier = TIER_C[lead.tier as 1 | 2 | 3] ?? TIER_C[2];
   const status = STATUS_C[lead.status] ?? STATUS_C["Not contacted"];
 
@@ -86,6 +89,7 @@ export default function LeadCard({ lead, compact, onOpen, onStatusChange, onPrio
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-semibold text-sm" style={{ color: "var(--text)" }}>{lead.company}</span>
             <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: tier.bg, color: tier.text }}>{tier.label}</span>
+            <SignalBadge unreadCount={signalUnread} maxUrgency={signalMaxUrgency} onClick={e => { e.stopPropagation(); onOpen(); }} />
             <span className="text-xs" style={{ color: "var(--muted)" }}>{FLAG[lead.country] ?? "🌍"} {lead.country} · {lead.city}</span>
             <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: "#f3f4f6", color: "var(--text-sub)" }}>{lead.vertical}</span>
           </div>

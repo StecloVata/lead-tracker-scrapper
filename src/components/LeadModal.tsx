@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { Lead, Contact, LeadStatus, LeadVertical } from "@/types/lead";
 import { createClient } from "@/lib/supabase/client";
+import SignalPanel from "./SignalPanel";
 
 const STATUSES: LeadStatus[] = ["Not contacted", "Researching", "Contacted", "Meeting booked", "Qualified", "Closed", "Not a fit"];
 const VERTICALS: LeadVertical[] = ["BPO", "Insurance & Finance", "Debt Collection", "Telecoms & Utilities", "Solar & Energy", "Recruitment & Staffing", "SaaS / Tech Sales"];
@@ -18,6 +19,15 @@ interface Props {
 export default function LeadModal({ lead, onClose, onSave, onDelete, onAIScore }: Props) {
   const isNew = !lead.id;
   const supabase = createClient();
+
+  const [activeTab, setActiveTab] = useState<"details" | "signals">("details");
+  const [signalUnread, setSignalUnread] = useState(0);
+  const [signalMaxUrgency, setSignalMaxUrgency] = useState<1 | 2 | 3 | null>(null);
+
+  const handleUnreadChange = useCallback((count: number, maxUrgency: 1 | 2 | 3 | null) => {
+    setSignalUnread(count);
+    setSignalMaxUrgency(maxUrgency);
+  }, []);
 
   const [form, setForm] = useState<Partial<Lead>>({
     company: lead.company ?? "",
@@ -109,14 +119,49 @@ export default function LeadModal({ lead, onClose, onSave, onDelete, onAIScore }
           <button onClick={onClose} className="text-lg leading-none" style={{ color: "var(--muted)" }}>✕</button>
         </div>
 
-        {/* AI reasoning */}
-        {lead.ai_reasoning && (
+        {/* Tabs — only shown for existing leads */}
+        {!isNew && (
+          <div className="flex border-b" style={{ borderColor: "var(--border)" }}>
+            {(["details", "signals"] as const).map(tab => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className="relative px-5 py-2.5 text-xs font-semibold capitalize transition-colors"
+                style={{
+                  color: activeTab === tab ? "var(--navy)" : "var(--muted)",
+                  borderBottom: activeTab === tab ? "2px solid var(--orange)" : "2px solid transparent",
+                }}
+              >
+                {tab === "signals" ? (
+                  <span className="flex items-center gap-1.5">
+                    Signals
+                    {signalUnread > 0 && (
+                      <span className="text-xs font-bold px-1.5 py-0.5 rounded-full" style={{ background: signalMaxUrgency === 3 ? "#ef4444" : "#f59e0b", color: "#fff" }}>
+                        {signalUnread}
+                      </span>
+                    )}
+                  </span>
+                ) : "Details"}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* AI reasoning (Details tab only) */}
+        {activeTab === "details" && lead.ai_reasoning && (
           <div className="mx-6 mt-4 p-3 rounded-lg text-xs" style={{ background: "#f0fdf4", color: "#166534" }}>
             <strong>AI Assessment:</strong> {lead.ai_reasoning}
           </div>
         )}
 
-        <div className="px-6 py-4 space-y-5">
+        {/* Signals tab */}
+        {!isNew && activeTab === "signals" && (
+          <div className="px-6 py-4">
+            <SignalPanel leadId={lead.id} onUnreadChange={handleUnreadChange} />
+          </div>
+        )}
+
+        <div className="px-6 py-4 space-y-5" style={{ display: isNew || activeTab === "details" ? undefined : "none" }}>
           {/* Basic fields */}
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -261,8 +306,8 @@ export default function LeadModal({ lead, onClose, onSave, onDelete, onAIScore }
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="flex items-center gap-3 px-6 py-4 border-t sticky bottom-0" style={{ borderColor: "var(--border)", background: "#fff" }}>
+        {/* Footer — hidden on Signals tab */}
+        <div className="flex items-center gap-3 px-6 py-4 border-t sticky bottom-0" style={{ borderColor: "var(--border)", background: "#fff", display: !isNew && activeTab === "signals" ? "none" : undefined }}>
           {onDelete && (
             <button onClick={onDelete} className="text-xs px-3 py-2 rounded-lg" style={{ color: "#dc2626", background: "#fee2e2" }}>
               Delete lead

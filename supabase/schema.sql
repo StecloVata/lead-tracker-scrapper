@@ -104,3 +104,48 @@ drop trigger if exists on_leads_updated on public.leads;
 create trigger on_leads_updated
   before update on public.leads
   for each row execute procedure public.handle_updated_at();
+
+-- =============================================
+-- Signal Tool
+-- =============================================
+
+-- Track when each lead was last scanned for signals
+alter table public.leads
+  add column if not exists last_signal_check timestamptz default null;
+
+-- Signals table
+create table if not exists public.signals (
+  id           uuid primary key default gen_random_uuid(),
+  lead_id      uuid references public.leads(id) on delete cascade not null,
+  signal_type  text not null check (signal_type in ('funding', 'hiring', 'leadership_change', 'expansion', 'pain_point', 'tech_change', 'event', 'press')),
+  title        text not null,
+  description  text default '',
+  source_url   text default '',
+  urgency      integer default 2 check (urgency in (1, 2, 3)),
+  detected_at  timestamptz default now(),
+  is_read      boolean default false
+);
+
+-- RLS for signals (scoped through lead → user)
+alter table public.signals enable row level security;
+
+drop policy if exists "Users can view own signals" on public.signals;
+drop policy if exists "Users can insert own signals" on public.signals;
+drop policy if exists "Users can update own signals" on public.signals;
+drop policy if exists "Users can delete own signals" on public.signals;
+
+create policy "Users can view own signals"
+  on public.signals for select
+  using (lead_id in (select id from public.leads where user_id = auth.uid()));
+
+create policy "Users can insert own signals"
+  on public.signals for insert
+  with check (lead_id in (select id from public.leads where user_id = auth.uid()));
+
+create policy "Users can update own signals"
+  on public.signals for update
+  using (lead_id in (select id from public.leads where user_id = auth.uid()));
+
+create policy "Users can delete own signals"
+  on public.signals for delete
+  using (lead_id in (select id from public.leads where user_id = auth.uid()));

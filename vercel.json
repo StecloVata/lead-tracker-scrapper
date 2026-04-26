@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/signals/refresh-all",
+      "schedule": "0 7 * * *"
+    }
+  ]
+}

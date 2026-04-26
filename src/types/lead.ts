@@ -59,3 +59,25 @@ export interface LeadFilters {
   search: string;
   status: string;
 }
+
+export type SignalType =
+  | "funding"
+  | "hiring"
+  | "leadership_change"
+  | "expansion"
+  | "pain_point"
+  | "tech_change"
+  | "event"
+  | "press";
+
+export interface Signal {
+  id: string;
+  lead_id: string;
+  signal_type: SignalType;
+  title: string;
+  description: string;
+  source_url: string;
+  urgency: 1 | 2 | 3;
+  detected_at: string;
+  is_read: boolean;
+}

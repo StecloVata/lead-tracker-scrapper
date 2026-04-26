@@ -6,6 +6,7 @@ import LeadCard from "./LeadCard";
 import LeadFiltersBar from "./LeadFiltersBar";
 import LeadModal from "./LeadModal";
 import StatsBar from "./StatsBar";
+import HotLeadsWidget from "./HotLeadsWidget";
 import { downloadCSV, downloadCSVTemplate, parseCSV } from "@/lib/csv";
 
 const VERTICALS = ["All verticals", "BPO", "Insurance & Finance", "Debt Collection", "Telecoms & Utilities", "Solar & Energy", "Recruitment & Staffing", "SaaS / Tech Sales"];
@@ -31,6 +32,8 @@ export default function LeadsClient() {
   const [showArchiveMenu, setShowArchiveMenu] = useState(false);
   const [archiving, setArchiving] = useState(false);
   const [archiveMsg, setArchiveMsg] = useState("");
+  // Signal badge data: leadId → { unread, maxUrgency }
+  const [signalCounts, setSignalCounts] = useState<Record<string, { unread: number; maxUrgency: 1 | 2 | 3 | null }>>({});
 
   async function fetchLeads() {
     setLoading(true);
@@ -43,7 +46,19 @@ export default function LeadsClient() {
     setLoading(false);
   }
 
-  useEffect(() => { fetchLeads(); }, []);
+  async function fetchSignalCounts() {
+    try {
+      const data = await fetch("/api/signals/hot-leads").then(r => r.json());
+      if (!Array.isArray(data)) return;
+      const map: Record<string, { unread: number; maxUrgency: 1 | 2 | 3 | null }> = {};
+      for (const item of data) {
+        map[item.lead_id] = { unread: item.unreadCount, maxUrgency: item.maxUrgency as 1 | 2 | 3 };
+      }
+      setSignalCounts(map);
+    } catch { /* silent */ }
+  }
+
+  useEffect(() => { fetchLeads(); fetchSignalCounts(); }, []);
 
   useEffect(() => {
     function openFirst() {
@@ -209,6 +224,16 @@ export default function LeadsClient() {
   return (
     <div className="space-y-4">
       <StatsBar leads={leads} />
+
+      {/* Hot leads widget — pipeline only */}
+      {tab === "pipeline" && (
+        <HotLeadsWidget
+          onOpenLead={leadId => {
+            const found = leads.find(l => l.id === leadId);
+            if (found) setSelectedLead(found);
+          }}
+        />
+      )}
 
       {/* Overdue / Due today chips */}
       <div data-tutorial="next-action-area" />
@@ -459,6 +484,8 @@ export default function LeadsClient() {
                   onAIScore={() => {}}
                   onArchive={tab === "pipeline" ? () => archiveLead(lead.id) : undefined}
                   onRestore={tab === "archived" ? () => restoreLead(lead.id) : undefined}
+                  signalUnread={signalCounts[lead.id]?.unread ?? 0}
+                  signalMaxUrgency={signalCounts[lead.id]?.maxUrgency ?? null}
                 />
               </div>
             ))
