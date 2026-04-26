@@ -69,10 +69,19 @@ export default function LeadCard({ lead, compact, onOpen, onStatusChange, onPrio
     );
   }
 
+  const signalBorder = signalMaxUrgency === 3 ? "#ef4444"
+    : signalMaxUrgency === 2 ? "#f59e0b"
+    : signalMaxUrgency === 1 ? "#94a3b8"
+    : undefined;
+
   return (
     <div
       className="rounded-xl transition-shadow hover:shadow-md"
-      style={{ background: "#fff", border: "1px solid var(--border)" }}
+      style={{
+        background: "#fff",
+        border: "1px solid var(--border)",
+        borderLeft: signalBorder ? `4px solid ${signalBorder}` : undefined,
+      }}
     >
       <div className="flex items-start gap-4 p-4">
         {/* Priority star */}

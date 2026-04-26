@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useTutorial } from "@/contexts/TutorialContext";
 import type { User } from "@supabase/supabase-js";
@@ -22,6 +23,11 @@ const LINKS = [
       <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
     </svg>
   )},
+  { href: "/signals", label: "Signals", icon: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+    </svg>
+  )},
 ];
 
 export default function Nav({ user }: { user: User }) {
@@ -29,6 +35,18 @@ export default function Nav({ user }: { user: User }) {
   const router = useRouter();
   const supabase = createClient();
   const tutorial = useTutorial();
+  const [signalUnread, setSignalUnread] = useState(0);
+
+  useEffect(() => {
+    fetch("/api/signals/counts")
+      .then(r => r.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setSignalUnread(data.reduce((s: number, d: { unread: number }) => s + d.unread, 0));
+        }
+      })
+      .catch(() => {});
+  }, [pathname]);
 
   const username = user.user_metadata?.username as string | undefined;
   const displayName = username ?? user.email ?? "";
@@ -56,12 +74,13 @@ export default function Nav({ user }: { user: User }) {
         {LINKS.map(link => {
           const active = pathname === link.href;
           const tutorialAttr = link.href === "/scraper" ? "nav-scraper" : link.href === "/analytics" ? "nav-analytics" : undefined;
+          const isSignals = link.href === "/signals";
           return (
             <Link
               key={link.href}
               href={link.href}
               data-tutorial={tutorialAttr}
-              className="flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg transition-all"
+              className="relative flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg transition-all"
               style={{
                 color: active ? "var(--navy-dark)" : "rgba(255,255,255,0.75)",
                 background: active ? "var(--teal)" : "transparent",
@@ -70,6 +89,14 @@ export default function Nav({ user }: { user: User }) {
             >
               {link.icon}
               {link.label}
+              {isSignals && signalUnread > 0 && (
+                <span
+                  className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center text-xs font-bold rounded-full px-1"
+                  style={{ background: "#ef4444", color: "#fff", fontSize: 10 }}
+                >
+                  {signalUnread > 99 ? "99+" : signalUnread}
+                </span>
+              )}
             </Link>
           );
         })}
