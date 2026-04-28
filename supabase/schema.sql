@@ -106,6 +106,67 @@ create trigger on_leads_updated
   for each row execute procedure public.handle_updated_at();
 
 -- =============================================
+-- Scraper: Job Queue
+-- =============================================
+create table if not exists public.scrape_jobs (
+  id            uuid primary key default gen_random_uuid(),
+  user_id       uuid references auth.users(id) on delete cascade not null,
+  source        text not null,
+  params        jsonb default '{}',
+  status        text default 'pending'
+                check (status in ('pending','running','done','failed')),
+  result_count  int default 0,
+  dupe_count    int default 0,
+  error_message text,
+  created_at    timestamptz default now(),
+  finished_at   timestamptz
+);
+
+alter table public.scrape_jobs enable row level security;
+
+drop policy if exists "Users manage own scrape jobs" on public.scrape_jobs;
+create policy "Users manage own scrape jobs" on public.scrape_jobs
+  using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- =============================================
+-- Scraper: Candidate Staging Area
+-- =============================================
+create table if not exists public.scrape_candidates (
+  id                  uuid primary key default gen_random_uuid(),
+  job_id              uuid references public.scrape_jobs(id) on delete cascade,
+  user_id             uuid references auth.users(id) on delete cascade not null,
+
+  company             text not null,
+  website             text default '',
+  country             text default '',
+  vertical            text default '',
+  tier                integer default 2,
+  size                text default '',
+  notes               text default '',
+  linkedin_url        text default '',
+
+  emails              text[]  default '{}',
+  phones              text[]  default '{}',
+  people              jsonb   default '[]',
+  tech_stack          text[]  default '{}',
+
+  is_duplicate        boolean default false,
+  duplicate_match     text    default '',
+  duplicate_lead_id   uuid references public.leads(id) on delete set null,
+
+  icp_score           int default 0,
+  review_status       text default 'pending'
+                      check (review_status in ('pending','approved','rejected')),
+  created_at          timestamptz default now()
+);
+
+alter table public.scrape_candidates enable row level security;
+
+drop policy if exists "Users manage own scrape candidates" on public.scrape_candidates;
+create policy "Users manage own scrape candidates" on public.scrape_candidates
+  using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- =============================================
 -- Signal Tool
 -- =============================================
 
