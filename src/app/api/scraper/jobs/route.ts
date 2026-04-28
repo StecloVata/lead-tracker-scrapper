@@ -16,11 +16,12 @@ const REGISTRY_COUNTRIES: Record<string, "brreg" | "companies-house" | "cvr-dk">
   "Denmark": "cvr-dk",
 };
 
-// Countries covered by Indeed RSS (no structured registry)
+// Countries covered by Indeed RSS
+// Denmark is included here too as a fallback — CVR Elasticsearch requires auth
 const INDEED_COUNTRIES = [
   "Germany","Austria","Switzerland","Netherlands","Belgium",
   "France","Spain","Italy","Portugal","Ireland",
-  "Sweden","Finland","Luxembourg",
+  "Sweden","Finland","Luxembourg","Denmark","Norway",
 ];
 
 export async function POST(request: Request) {

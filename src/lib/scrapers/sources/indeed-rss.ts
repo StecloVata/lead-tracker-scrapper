@@ -61,10 +61,15 @@ interface RssJob {
   url:      string;
 }
 
+function indeedRssUrl(countryCode: string, query: string): string {
+  const q = encodeURIComponent(query);
+  if (countryCode === "co.uk") return `https://www.indeed.co.uk/rss?q=${q}&sort=date`;
+  return `https://${countryCode}.indeed.com/rss?q=${q}&sort=date`;
+}
+
 async function fetchIndeedRss(query: string, countryCode: string): Promise<RssJob[]> {
   try {
-    const tld = countryCode === "co.uk" ? "co.uk" : countryCode;
-    const url = `https://${tld}.indeed.com/rss?q=${encodeURIComponent(query)}&sort=date&limit=25`;
+    const url = indeedRssUrl(countryCode, query);
     const res = await fetch(url, {
       headers: { "User-Agent": "Mozilla/5.0" },
       signal: AbortSignal.timeout(8000),
