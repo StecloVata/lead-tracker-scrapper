@@ -16,13 +16,13 @@ export interface ScraperCandidate {
 }
 
 const NORWAY_NACE: Record<string, string[]> = {
-  "BPO":                   ["82.200"],
-  "Insurance & Finance":   ["65.120", "65.110"],
-  "Debt Collection":       ["82.910"],
-  "Telecoms & Utilities":  ["61.100", "61.200"],
-  "Solar & Energy":        ["35.110", "35.140"],
-  "Recruitment & Staffing":["78.100", "78.200"],
-  "SaaS / Tech Sales":     ["62.010", "62.020"],
+  "BPO":                   ["82.200", "82.990", "82.100", "74.900"],
+  "Insurance & Finance":   ["65.120", "65.110", "66.220", "64.910"],
+  "Debt Collection":       ["82.910", "64.910", "66.190"],
+  "Telecoms & Utilities":  ["61.100", "61.200", "61.900", "35.140"],
+  "Solar & Energy":        ["35.110", "35.140", "43.210", "71.120"],
+  "Recruitment & Staffing":["78.100", "78.200", "78.300", "74.900"],
+  "SaaS / Tech Sales":     ["62.010", "62.020", "62.090", "63.110"],
 };
 
 const ICP_KEYWORDS = [

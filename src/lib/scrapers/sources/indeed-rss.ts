@@ -15,22 +15,26 @@ const VERTICAL_QUERIES: Record<string, string[]> = {
   "SaaS / Tech Sales":      ["inside sales manager", "SDR team lead", "sales development manager"],
 };
 
-const COUNTRY_INDEED: Record<string, string> = {
-  "Germany":     "de",
-  "Austria":     "at",
-  "Switzerland": "ch",
-  "Netherlands": "nl",
-  "Belgium":     "be",
-  "France":      "fr",
-  "Spain":       "es",
-  "Italy":       "it",
-  "Portugal":    "pt",
-  "UK":          "co.uk",
-  "Ireland":     "ie",
-  "Sweden":      "se",
-  "Norway":      "no",
-  "Denmark":     "dk",
-  "Finland":     "fi",
+// Countries with dedicated Indeed domains use subdomain form.
+// Nordic countries (no, se, fi) don't have dedicated Indeed domains —
+// use www.indeed.com with a location parameter instead.
+const COUNTRY_INDEED: Record<string, { mode: "subdomain" | "location"; value: string }> = {
+  "Germany":     { mode: "subdomain", value: "de" },
+  "Austria":     { mode: "subdomain", value: "at" },
+  "Switzerland": { mode: "subdomain", value: "ch" },
+  "Netherlands": { mode: "subdomain", value: "nl" },
+  "Belgium":     { mode: "subdomain", value: "be" },
+  "France":      { mode: "subdomain", value: "fr" },
+  "Spain":       { mode: "subdomain", value: "es" },
+  "Italy":       { mode: "subdomain", value: "it" },
+  "Portugal":    { mode: "subdomain", value: "pt" },
+  "UK":          { mode: "subdomain", value: "co.uk" },
+  "Ireland":     { mode: "subdomain", value: "ie" },
+  "Sweden":      { mode: "location",  value: "Sweden" },
+  "Norway":      { mode: "location",  value: "Norway" },
+  "Denmark":     { mode: "location",  value: "Denmark" },
+  "Finland":     { mode: "location",  value: "Finland" },
+  "Luxembourg":  { mode: "location",  value: "Luxembourg" },
 };
 
 const ICP_KEYWORDS = [
@@ -61,15 +65,18 @@ interface RssJob {
   url:      string;
 }
 
-function indeedRssUrl(countryCode: string, query: string): string {
+function indeedRssUrl(config: { mode: "subdomain" | "location"; value: string }, query: string): string {
   const q = encodeURIComponent(query);
-  if (countryCode === "co.uk") return `https://www.indeed.co.uk/rss?q=${q}&sort=date`;
-  return `https://${countryCode}.indeed.com/rss?q=${q}&sort=date`;
+  if (config.mode === "location") {
+    return `https://www.indeed.com/rss?q=${q}&l=${encodeURIComponent(config.value)}&sort=date`;
+  }
+  if (config.value === "co.uk") return `https://www.indeed.co.uk/rss?q=${q}&sort=date`;
+  return `https://${config.value}.indeed.com/rss?q=${q}&sort=date`;
 }
 
-async function fetchIndeedRss(query: string, countryCode: string): Promise<RssJob[]> {
+async function fetchIndeedRss(query: string, config: { mode: "subdomain" | "location"; value: string }): Promise<RssJob[]> {
   try {
-    const url = indeedRssUrl(countryCode, query);
+    const url = indeedRssUrl(config, query);
     const res = await fetch(url, {
       headers: { "User-Agent": "Mozilla/5.0" },
       signal: AbortSignal.timeout(8000),
@@ -105,8 +112,8 @@ export async function fetchIndeedRSS(
   tier: number,
   index: DedupIndex,
 ): Promise<ScraperCandidate[]> {
-  const countryCode = COUNTRY_INDEED[country];
-  if (!countryCode) return [];
+  const countryConfig = COUNTRY_INDEED[country];
+  if (!countryConfig) return [];
 
   const queries = VERTICAL_QUERIES[vertical] ?? ["call center manager", "outbound sales manager"];
   const candidates: ScraperCandidate[] = [];
@@ -114,7 +121,7 @@ export async function fetchIndeedRSS(
 
   // Run up to 2 queries in parallel
   const jobLists = await Promise.all(
-    queries.slice(0, 2).map(q => fetchIndeedRss(q, countryCode))
+    queries.slice(0, 2).map(q => fetchIndeedRss(q, countryConfig))
   );
   const allJobs = jobLists.flat();
 
