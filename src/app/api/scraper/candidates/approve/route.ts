@@ -79,12 +79,14 @@ export async function POST(request: Request) {
         notes:       candidate.notes ?? "",
         status:      "Not contacted",
         is_priority: false,
+        is_archived: false,
         linkedin:    candidate.linkedin_url ?? "",
       })
       .select()
       .single();
 
     if (insertErr || !newLead) {
+      console.error("Lead insert failed:", insertErr?.message, candidate.company);
       skipped++;
       continue;
     }
