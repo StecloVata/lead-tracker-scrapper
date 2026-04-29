@@ -158,7 +158,7 @@ export default function OnboardingModal({ userId }: Props) {
                     Yes, show me around <span className="text-xs font-normal ml-1 px-1.5 py-0.5 rounded-full" style={{ background: "var(--orange)", color: "#fff" }}>Recommended</span>
                   </div>
                   <div className="text-xs mt-1" style={{ color: "var(--muted)" }}>
-                    Step-by-step spotlight guide covering the pipeline, adding leads, follow-ups, the scraper, and analytics.
+                    Step-by-step spotlight guide covering the pipeline, adding leads, follow-ups, and analytics.
                   </div>
                 </div>
               </div>

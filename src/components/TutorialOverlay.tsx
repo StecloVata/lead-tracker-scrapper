@@ -49,14 +49,6 @@ const STEPS: Step[] = [
     openModal: true,
   },
   {
-    selector: '[data-tutorial="nav-scraper"]',
-    route: "/scraper",
-    icon: "🔍",
-    title: "Lead Generator",
-    body: "Need fresh prospects? Filter by region, vertical, company size, and tier — the app finds real companies and automatically flags any that are already in your pipeline.",
-    tooltipSide: "bottom",
-  },
-  {
     selector: '[data-tutorial="nav-analytics"]',
     route: "/analytics",
     icon: "📊",
